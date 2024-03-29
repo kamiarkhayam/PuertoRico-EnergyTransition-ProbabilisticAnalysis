@@ -1,0 +1,572 @@
+data ;
+
+set time_exist := 
+2015
+;
+
+set time_future := 
+2020
+2025
+2030
+2035
+;
+
+set time_season := 
+spring
+summer
+fall
+winter
+;
+
+set time_of_day := 
+day
+night
+;
+
+set regions := 
+R1
+R2
+;
+
+set tech_curtailment := 
+S_OILREF
+;
+
+set tech_resource := 
+S_IMPETH
+S_IMPOIL
+S_IMPNG
+S_IMPURN
+;
+
+set tech_production := 
+S_OILREF
+E_NGCC
+E_SOLPV
+E_BATT
+E_NUCLEAR
+T_BLND
+T_DSL
+T_GSL
+T_EV
+R_EH
+R_NGH
+E_TRANS
+;
+
+set tech_baseload := 
+E_NUCLEAR
+;
+
+set tech_storage := 
+E_BATT
+;
+
+set tech_exchange := 
+E_TRANS
+;
+
+set commodity_physical := 
+ethos
+OIL
+NG
+URN
+ETH
+SOL
+GSL
+DSL
+ELC
+E10
+;
+
+set commodity_emissions := 
+CO2
+;
+
+set commodity_demand := 
+VMT
+RH
+;
+
+param SegFrac := 
+    spring             day         0.125    
+    spring             night         0.125    
+    summer             day         0.125    
+    summer             night         0.125    
+    fall             day         0.125    
+    fall             night         0.125    
+    winter             day         0.125    
+    winter             night         0.125    
+;
+
+param DemandSpecificDistribution := 
+    R1             spring             day             RH         0.05    
+    R1             spring             night             RH         0.1    
+    R1             summer             day             RH         0.0    
+    R1             summer             night             RH         0.0    
+    R1             fall             day             RH         0.05    
+    R1             fall             night             RH         0.1    
+    R1             winter             day             RH         0.3    
+    R1             winter             night             RH         0.4    
+    R2             spring             day             RH         0.05    
+    R2             spring             night             RH         0.1    
+    R2             summer             day             RH         0.0    
+    R2             summer             night             RH         0.0    
+    R2             fall             day             RH         0.05    
+    R2             fall             night             RH         0.1    
+    R2             winter             day             RH         0.3    
+    R2             winter             night             RH         0.4    
+;
+
+param CapacityToActivity := 
+    R1             S_IMPETH         1.0    
+    R1             S_IMPOIL         1.0    
+    R1             S_IMPNG         1.0    
+    R1             S_IMPURN         1.0    
+    R1             S_OILREF         1.0    
+    R1             E_NGCC         31.54    
+    R1             E_SOLPV         31.54    
+    R1             E_BATT         31.54    
+    R1             E_NUCLEAR         31.54    
+    R1             T_BLND         1.0    
+    R1             T_DSL         1.0    
+    R1             T_GSL         1.0    
+    R1             T_EV         1.0    
+    R1             R_EH         1.0    
+    R1             R_NGH         1.0    
+    R2             S_IMPETH         1.0    
+    R2             S_IMPOIL         1.0    
+    R2             S_IMPNG         1.0    
+    R2             S_IMPURN         1.0    
+    R2             S_OILREF         1.0    
+    R2             E_NGCC         31.54    
+    R2             E_SOLPV         31.54    
+    R2             E_BATT         31.54    
+    R2             E_NUCLEAR         31.54    
+    R2             T_BLND         1.0    
+    R2             T_DSL         1.0    
+    R2             T_GSL         1.0    
+    R2             T_EV         1.0    
+    R2             R_EH         1.0    
+    R2             R_NGH         1.0    
+    R1-R2             E_TRANS         31.54    
+    R2-R1             E_TRANS         31.54    
+;
+
+param GlobalDiscountRate := 
+0.05
+;
+
+param EmissionActivity := 
+    R1             CO2             ethos             S_IMPNG         2020         NG         50.3    #     taken from MIT Energy Fact Sheet            
+    R1             CO2             OIL             S_OILREF         2020         GSL         67.2    #     taken from MIT Energy Fact Sheet            
+    R1             CO2             OIL             S_OILREF         2020         DSL         69.4    #     taken from MIT Energy Fact Sheet            
+    R2             CO2             ethos             S_IMPNG         2020         NG         50.3    #     taken from MIT Energy Fact Sheet            
+    R2             CO2             OIL             S_OILREF         2020         GSL         67.2    #     taken from MIT Energy Fact Sheet            
+    R2             CO2             OIL             S_OILREF         2020         DSL         69.4    #     taken from MIT Energy Fact Sheet            
+;
+
+param EmissionLimit := 
+    R1         2020         CO2         25000.0    
+    R1         2025         CO2         24000.0    
+    R1         2030         CO2         23000.0    
+    global         2020         CO2         37500.0    
+    global         2025         CO2         36000.0    
+    global         2030         CO2         34500.0    
+;
+
+param Demand := 
+    R1         2020         RH         30.0    
+    R1         2025         RH         33.0    
+    R1         2030         RH         36.0    
+    R1         2020         VMT         84.0    
+    R1         2025         VMT         91.0    
+    R1         2030         VMT         98.0    
+    R2         2020         RH         70.0    
+    R2         2025         RH         77.0    
+    R2         2030         RH         84.0    
+    R2         2020         VMT         36.0    
+    R2         2025         VMT         39.0    
+    R2         2030         VMT         42.0    
+;
+
+param TechOutputSplit := 
+    R1         2020         S_OILREF             GSL         0.9    
+    R1         2020         S_OILREF             DSL         0.1    
+    R1         2025         S_OILREF             GSL         0.9    
+    R1         2025         S_OILREF             DSL         0.1    
+    R1         2030         S_OILREF             GSL         0.9    
+    R1         2030         S_OILREF             DSL         0.1    
+    R2         2020         S_OILREF             GSL         0.72    
+    R2         2020         S_OILREF             DSL         0.08    
+    R2         2025         S_OILREF             GSL         0.72    
+    R2         2025         S_OILREF             DSL         0.08    
+    R2         2030         S_OILREF             GSL         0.72    
+    R2         2030         S_OILREF             DSL         0.08    
+;
+
+param TechInputSplit := 
+    R1         2020         GSL             T_BLND         0.9    
+    R1         2020         ETH             T_BLND         0.1    
+    R1         2025         GSL             T_BLND         0.9    
+    R1         2025         ETH             T_BLND         0.1    
+    R1         2030         GSL             T_BLND         0.9    
+    R1         2030         ETH             T_BLND         0.1    
+    R2         2020         GSL             T_BLND         0.72    
+    R2         2020         ETH             T_BLND         0.08    
+    R2         2025         GSL             T_BLND         0.72    
+    R2         2025         ETH             T_BLND         0.08    
+    R2         2030         GSL             T_BLND         0.72    
+    R2         2030         ETH             T_BLND         0.08    
+;
+
+param MinActivity := 
+    R1         2020         T_GSL         35.0    
+    R1         2025         T_GSL         35.0    
+    R1         2030         T_GSL         35.0    
+    R2         2020         T_GSL         15.0    
+    R2         2025         T_GSL         15.0    
+    R2         2030         T_GSL         15.0    
+;
+
+param LifetimeTech := 
+    R1             S_IMPETH         100.0    
+    R1             S_IMPOIL         100.0    
+    R1             S_IMPNG         100.0    
+    R1             S_IMPURN         100.0    
+    R1             S_OILREF         100.0    
+    R1             E_NGCC         30.0    
+    R1             E_SOLPV         30.0    
+    R1             E_BATT         20.0    
+    R1             E_NUCLEAR         50.0    
+    R1             T_BLND         100.0    
+    R1             T_DSL         12.0    
+    R1             T_GSL         12.0    
+    R1             T_EV         12.0    
+    R1             R_EH         20.0    
+    R1             R_NGH         20.0    
+    R2             S_IMPETH         100.0    
+    R2             S_IMPOIL         100.0    
+    R2             S_IMPNG         100.0    
+    R2             S_IMPURN         100.0    
+    R2             S_OILREF         100.0    
+    R2             E_NGCC         30.0    
+    R2             E_SOLPV         30.0    
+    R2             E_BATT         20.0    
+    R2             E_NUCLEAR         50.0    
+    R2             T_BLND         100.0    
+    R2             T_DSL         12.0    
+    R2             T_GSL         12.0    
+    R2             T_EV         12.0    
+    R2             R_EH         20.0    
+    R2             R_NGH         20.0    
+    R1-R2             E_TRANS         30.0    
+    R2-R1             E_TRANS         30.0    
+;
+
+param LifetimeLoanTech := 
+    R1             S_IMPETH         100.0    
+    R1             S_IMPOIL         100.0    
+    R1             S_IMPNG         100.0    
+    R1             S_IMPURN         100.0    
+    R1             S_OILREF         100.0    
+    R1             E_NGCC         30.0    
+    R1             E_SOLPV         30.0    
+    R1             E_BATT         20.0    
+    R1             E_NUCLEAR         50.0    
+    R1             T_BLND         100.0    
+    R1             T_DSL         12.0    
+    R1             T_GSL         12.0    
+    R1             T_EV         12.0    
+    R1             R_EH         20.0    
+    R1             R_NGH         20.0    
+    R2             S_IMPETH         100.0    
+    R2             S_IMPOIL         100.0    
+    R2             S_IMPNG         100.0    
+    R2             S_IMPURN         100.0    
+    R2             S_OILREF         100.0    
+    R2             E_NGCC         30.0    
+    R2             E_SOLPV         30.0    
+    R2             E_BATT         20.0    
+    R2             E_NUCLEAR         50.0    
+    R2             T_BLND         100.0    
+    R2             T_DSL         12.0    
+    R2             T_GSL         12.0    
+    R2             T_EV         12.0    
+    R2             R_EH         20.0    
+    R2             R_NGH         20.0    
+;
+
+param CapacityFactorTech := 
+    R1             spring             day             E_SOLPV         0.6    
+    R1             spring             night             E_SOLPV         0.0    
+    R1             summer             day             E_SOLPV         0.6    
+    R1             summer             night             E_SOLPV         0.0    
+    R1             fall             day             E_SOLPV         0.6    
+    R1             fall             night             E_SOLPV         0.0    
+    R1             winter             day             E_SOLPV         0.6    
+    R1             winter             night             E_SOLPV         0.0    
+    R2             spring             day             E_SOLPV         0.48    
+    R2             spring             night             E_SOLPV         0.0    
+    R2             summer             day             E_SOLPV         0.48    
+    R2             summer             night             E_SOLPV         0.0    
+    R2             fall             day             E_SOLPV         0.48    
+    R2             fall             night             E_SOLPV         0.0    
+    R2             winter             day             E_SOLPV         0.48    
+    R2             winter             night             E_SOLPV         0.0    
+;
+
+param Efficiency := 
+    R1             ethos             S_IMPETH         2020         ETH         1.0    
+    R1             ethos             S_IMPOIL         2020         OIL         1.0    
+    R1             ethos             S_IMPNG         2020         NG         1.0    
+    R1             ethos             S_IMPURN         2020         URN         1.0    
+    R1             OIL             S_OILREF         2020         GSL         1.0    
+    R1             OIL             S_OILREF         2020         DSL         1.0    
+    R1             ETH             T_BLND         2020         E10         1.0    
+    R1             GSL             T_BLND         2020         E10         1.0    
+    R1             NG             E_NGCC         2020         ELC         0.55    
+    R1             NG             E_NGCC         2025         ELC         0.55    
+    R1             NG             E_NGCC         2030         ELC         0.55    
+    R1             SOL             E_SOLPV         2020         ELC         1.0    
+    R1             SOL             E_SOLPV         2025         ELC         1.0    
+    R1             SOL             E_SOLPV         2030         ELC         1.0    
+    R1             URN             E_NUCLEAR         2015         ELC         0.4    
+    R1             URN             E_NUCLEAR         2020         ELC         0.4    
+    R1             URN             E_NUCLEAR         2025         ELC         0.4    
+    R1             URN             E_NUCLEAR         2030         ELC         0.4    
+    R1             ELC             E_BATT         2020         ELC         0.85    
+    R1             ELC             E_BATT         2025         ELC         0.85    
+    R1             ELC             E_BATT         2030         ELC         0.85    
+    R1             E10             T_GSL         2020         VMT         0.25    
+    R1             E10             T_GSL         2025         VMT         0.25    
+    R1             E10             T_GSL         2030         VMT         0.25    
+    R1             DSL             T_DSL         2020         VMT         0.3    
+    R1             DSL             T_DSL         2025         VMT         0.3    
+    R1             DSL             T_DSL         2030         VMT         0.3    
+    R1             ELC             T_EV         2020         VMT         0.89    
+    R1             ELC             T_EV         2025         VMT         0.89    
+    R1             ELC             T_EV         2030         VMT         0.89    
+    R1             ELC             R_EH         2020         RH         1.0    
+    R1             ELC             R_EH         2025         RH         1.0    
+    R1             ELC             R_EH         2030         RH         1.0    
+    R1             NG             R_NGH         2020         RH         0.85    
+    R1             NG             R_NGH         2025         RH         0.85    
+    R1             NG             R_NGH         2030         RH         0.85    
+    R2             ethos             S_IMPETH         2020         ETH         1.0    
+    R2             ethos             S_IMPOIL         2020         OIL         1.0    
+    R2             ethos             S_IMPNG         2020         NG         1.0    
+    R2             ethos             S_IMPURN         2020         URN         1.0    
+    R2             OIL             S_OILREF         2020         GSL         1.0    
+    R2             OIL             S_OILREF         2020         DSL         1.0    
+    R2             ETH             T_BLND         2020         E10         1.0    
+    R2             GSL             T_BLND         2020         E10         1.0    
+    R2             NG             E_NGCC         2020         ELC         0.55    
+    R2             NG             E_NGCC         2025         ELC         0.55    
+    R2             NG             E_NGCC         2030         ELC         0.55    
+    R2             SOL             E_SOLPV         2020         ELC         1.0    
+    R2             SOL             E_SOLPV         2025         ELC         1.0    
+    R2             SOL             E_SOLPV         2030         ELC         1.0    
+    R2             URN             E_NUCLEAR         2015         ELC         0.4    
+    R2             URN             E_NUCLEAR         2020         ELC         0.4    
+    R2             URN             E_NUCLEAR         2025         ELC         0.4    
+    R2             URN             E_NUCLEAR         2030         ELC         0.4    
+    R2             ELC             E_BATT         2020         ELC         0.85    
+    R2             ELC             E_BATT         2025         ELC         0.85    
+    R2             ELC             E_BATT         2030         ELC         0.85    
+    R2             E10             T_GSL         2020         VMT         0.25    
+    R2             E10             T_GSL         2025         VMT         0.25    
+    R2             E10             T_GSL         2030         VMT         0.25    
+    R2             DSL             T_DSL         2020         VMT         0.3    
+    R2             DSL             T_DSL         2025         VMT         0.3    
+    R2             DSL             T_DSL         2030         VMT         0.3    
+    R2             ELC             T_EV         2020         VMT         0.89    
+    R2             ELC             T_EV         2025         VMT         0.89    
+    R2             ELC             T_EV         2030         VMT         0.89    
+    R2             ELC             R_EH         2020         RH         1.0    
+    R2             ELC             R_EH         2025         RH         1.0    
+    R2             ELC             R_EH         2030         RH         1.0    
+    R2             NG             R_NGH         2020         RH         0.85    
+    R2             NG             R_NGH         2025         RH         0.85    
+    R2             NG             R_NGH         2030         RH         0.85    
+    R1-R2             ELC             E_TRANS         2015         ELC         0.9    
+    R2-R1             ELC             E_TRANS         2015         ELC         0.9    
+;
+
+param ExistingCapacity := 
+    R1             E_NUCLEAR         2015     0.07    
+    R2             E_NUCLEAR         2015     0.03    
+    R1-R2             E_TRANS         2015     10.0    
+    R2-R1             E_TRANS         2015     10.0    
+;
+
+param CostInvest := 
+    R1             E_NGCC         2020     1050.0    
+    R1             E_NGCC         2025     1025.0    
+    R1             E_NGCC         2030     1000.0    
+    R1             E_SOLPV         2020     900.0    
+    R1             E_SOLPV         2025     560.0    
+    R1             E_SOLPV         2030     800.0    
+    R1             E_NUCLEAR         2020     6145.0    
+    R1             E_NUCLEAR         2025     6045.0    
+    R1             E_NUCLEAR         2030     5890.0    
+    R1             E_BATT         2020     1150.0    
+    R1             E_BATT         2025     720.0    
+    R1             E_BATT         2030     480.0    
+    R1             T_GSL         2020     2570.0    
+    R1             T_GSL         2025     2700.0    
+    R1             T_GSL         2030     2700.0    
+    R1             T_DSL         2020     2715.0    
+    R1             T_DSL         2025     2810.0    
+    R1             T_DSL         2030     2810.0    
+    R1             T_EV         2020     3100.0    
+    R1             T_EV         2025     3030.0    
+    R1             T_EV         2030     2925.0    
+    R1             R_EH         2020     4.1    
+    R1             R_EH         2025     4.1    
+    R1             R_EH         2030     4.1    
+    R1             R_NGH         2020     7.6    
+    R1             R_NGH         2025     7.6    
+    R1             R_NGH         2030     7.6    
+    R2             E_NGCC         2020     840.0    
+    R2             E_NGCC         2025     820.0    
+    R2             E_NGCC         2030     800.0    
+    R2             E_SOLPV         2020     720.0    
+    R2             E_SOLPV         2025     448.0    
+    R2             E_SOLPV         2030     640.0    
+    R2             E_NUCLEAR         2020     4916.0    
+    R2             E_NUCLEAR         2025     4836.0    
+    R2             E_NUCLEAR         2030     4712.0    
+    R2             E_BATT         2020     920.0    
+    R2             E_BATT         2025     576.0    
+    R2             E_BATT         2030     384.0    
+    R2             T_GSL         2020     2056.0    
+    R2             T_GSL         2025     2160.0    
+    R2             T_GSL         2030     2160.0    
+    R2             T_DSL         2020     2172.0    
+    R2             T_DSL         2025     2248.0    
+    R2             T_DSL         2030     2248.0    
+    R2             T_EV         2020     2480.0    
+    R2             T_EV         2025     2424.0    
+    R2             T_EV         2030     2340.0    
+    R2             R_EH         2020     3.28    
+    R2             R_EH         2025     3.28    
+    R2             R_EH         2030     3.28    
+    R2             R_NGH         2020     6.08    
+    R2             R_NGH         2025     6.08    
+    R2             R_NGH         2030     6.08    
+;
+
+param CostFixed := 
+    R1         2020         E_NGCC         2020     30.6    
+    R1         2025         E_NGCC         2020     9.78    
+    R1         2025         E_NGCC         2025     9.78    
+    R1         2030         E_NGCC         2020     9.78    
+    R1         2030         E_NGCC         2025     9.78    
+    R1         2030         E_NGCC         2030     9.78    
+    R1         2020         E_SOLPV         2020     10.4    
+    R1         2025         E_SOLPV         2020     10.4    
+    R1         2025         E_SOLPV         2025     9.1    
+    R1         2030         E_SOLPV         2020     10.4    
+    R1         2030         E_SOLPV         2025     9.1    
+    R1         2030         E_SOLPV         2030     9.1    
+    R1         2020         E_NUCLEAR         2020     98.1    
+    R1         2025         E_NUCLEAR         2020     98.1    
+    R1         2025         E_NUCLEAR         2025     98.1    
+    R1         2030         E_NUCLEAR         2020     98.1    
+    R1         2030         E_NUCLEAR         2025     98.1    
+    R1         2030         E_NUCLEAR         2030     98.1    
+    R1         2020         E_BATT         2020     7.05    
+    R1         2025         E_BATT         2020     7.05    
+    R1         2025         E_BATT         2025     7.05    
+    R1         2030         E_BATT         2020     7.05    
+    R1         2030         E_BATT         2025     7.05    
+    R1         2030         E_BATT         2030     7.05    
+    R2         2020         E_NGCC         2020     24.48    
+    R2         2025         E_NGCC         2020     7.824    
+    R2         2025         E_NGCC         2025     7.824    
+    R2         2030         E_NGCC         2020     7.824    
+    R2         2030         E_NGCC         2025     7.824    
+    R2         2030         E_NGCC         2030     7.824    
+    R2         2020         E_SOLPV         2020     8.32    
+    R2         2025         E_SOLPV         2020     8.32    
+    R2         2025         E_SOLPV         2025     7.28    
+    R2         2030         E_SOLPV         2020     8.32    
+    R2         2030         E_SOLPV         2025     7.28    
+    R2         2030         E_SOLPV         2030     7.28    
+    R2         2020         E_NUCLEAR         2020     78.48    
+    R2         2025         E_NUCLEAR         2020     78.48    
+    R2         2025         E_NUCLEAR         2025     78.48    
+    R2         2030         E_NUCLEAR         2020     78.48    
+    R2         2030         E_NUCLEAR         2025     78.48    
+    R2         2030         E_NUCLEAR         2030     78.48    
+    R2         2020         E_BATT         2020     5.64    
+    R2         2025         E_BATT         2020     5.64    
+    R2         2025         E_BATT         2025     5.64    
+    R2         2030         E_BATT         2020     5.64    
+    R2         2030         E_BATT         2025     5.64    
+    R2         2030         E_BATT         2030     5.64    
+;
+
+param CostVariable := 
+    R1         2020         S_IMPETH         2020     32.0    
+    R1         2025         S_IMPETH         2020     32.0    
+    R1         2030         S_IMPETH         2020     32.0    
+    R1         2020         S_IMPOIL         2020     20.0    
+    R1         2025         S_IMPOIL         2020     20.0    
+    R1         2030         S_IMPOIL         2020     20.0    
+    R1         2020         S_IMPNG         2020     4.0    
+    R1         2025         S_IMPNG         2020     4.0    
+    R1         2030         S_IMPNG         2020     4.0    
+    R1         2020         S_OILREF         2020     1.0    
+    R1         2025         S_OILREF         2020     1.0    
+    R1         2030         S_OILREF         2020     1.0    
+    R1         2020         E_NGCC         2020     1.6    
+    R1         2025         E_NGCC         2020     1.6    
+    R1         2025         E_NGCC         2025     1.7    
+    R1         2030         E_NGCC         2020     1.6    
+    R1         2030         E_NGCC         2025     1.7    
+    R1         2030         E_NGCC         2030     1.8    
+    R1         2020         E_NUCLEAR         2020     0.24    
+    R1         2025         E_NUCLEAR         2020     0.24    
+    R1         2025         E_NUCLEAR         2025     0.25    
+    R1         2030         E_NUCLEAR         2020     0.24    
+    R1         2030         E_NUCLEAR         2025     0.25    
+    R1         2030         E_NUCLEAR         2030     0.26    
+    R2         2020         S_IMPETH         2020     25.6    
+    R2         2025         S_IMPETH         2020     25.6    
+    R2         2030         S_IMPETH         2020     25.6    
+    R2         2020         S_IMPOIL         2020     16.0    
+    R2         2025         S_IMPOIL         2020     16.0    
+    R2         2030         S_IMPOIL         2020     16.0    
+    R2         2020         S_IMPNG         2020     3.2    
+    R2         2025         S_IMPNG         2020     3.2    
+    R2         2030         S_IMPNG         2020     3.2    
+    R2         2020         S_OILREF         2020     0.8    
+    R2         2025         S_OILREF         2020     0.8    
+    R2         2030         S_OILREF         2020     0.8    
+    R2         2020         E_NGCC         2020     1.28    
+    R2         2025         E_NGCC         2020     1.28    
+    R2         2025         E_NGCC         2025     1.36    
+    R2         2030         E_NGCC         2020     1.28    
+    R2         2030         E_NGCC         2025     1.36    
+    R2         2030         E_NGCC         2030     1.44    
+    R2         2020         E_NUCLEAR         2020     0.192    
+    R2         2025         E_NUCLEAR         2020     0.192    
+    R2         2025         E_NUCLEAR         2025     0.2    
+    R2         2030         E_NUCLEAR         2020     0.192    
+    R2         2030         E_NUCLEAR         2025     0.2    
+    R2         2030         E_NUCLEAR         2030     0.208    
+    R1-R2         2020         E_TRANS         2015     0.1    
+    R1-R2         2025         E_TRANS         2015     0.1    
+    R1-R2         2030         E_TRANS         2015     0.1    
+    R2-R1         2020         E_TRANS         2015     0.1    
+    R2-R1         2025         E_TRANS         2015     0.1    
+    R2-R1         2030         E_TRANS         2015     0.1    
+;
+
+param StorageDuration := 
+    R1             E_BATT         8.0    
+    R2             E_BATT         8.0    
+;
+

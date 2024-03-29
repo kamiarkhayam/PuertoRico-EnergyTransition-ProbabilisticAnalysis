@@ -1,0 +1,6 @@
+% Simply supported beam - Input parameters
+1.500000E-01 % b in m
+3.000000E-01 % h in m
+5.000000E+00 % L in m
+3.000000E+10 % E in MPa
+1.000000E+04 % p in N

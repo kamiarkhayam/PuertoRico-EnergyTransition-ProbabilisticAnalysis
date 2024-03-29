@@ -1,0 +1,2299 @@
+BEGIN TRANSACTION;
+CREATE TABLE "time_season" (
+	"t_season"	text,
+	PRIMARY KEY("t_season")
+);
+INSERT INTO `time_season` VALUES ('sunny-w7_12');
+INSERT INTO `time_season` VALUES ('sunny-w12_17');
+INSERT INTO `time_season` VALUES ('sunny-w17_24');
+INSERT INTO `time_season` VALUES ('sunny-w24_31');
+INSERT INTO `time_season` VALUES ('sunny-w31_38');
+INSERT INTO `time_season` VALUES ('sunny-wother');
+INSERT INTO `time_season` VALUES ('partsunny-w7_12');
+INSERT INTO `time_season` VALUES ('partsunny-w12_17');
+INSERT INTO `time_season` VALUES ('partsunny-w17_24');
+INSERT INTO `time_season` VALUES ('partsunny-w24_31');
+INSERT INTO `time_season` VALUES ('partsunny-w31_38');
+INSERT INTO `time_season` VALUES ('partsunny-wother');
+INSERT INTO `time_season` VALUES ('cloudy-w7_12');
+INSERT INTO `time_season` VALUES ('cloudy-w12_17');
+INSERT INTO `time_season` VALUES ('cloudy-w17_24');
+INSERT INTO `time_season` VALUES ('cloudy-w24_31');
+INSERT INTO `time_season` VALUES ('cloudy-w31_38');
+INSERT INTO `time_season` VALUES ('cloudy-wother');
+
+
+CREATE TABLE "time_periods" (
+	"t_periods"	integer,
+	"flag"	text,
+	PRIMARY KEY("t_periods"),
+	FOREIGN KEY("flag") REFERENCES "time_period_labels"("t_period_labels")
+);
+INSERT INTO `time_periods` VALUES (2020,'e');
+INSERT INTO `time_periods` VALUES (2025,'f');
+INSERT INTO `time_periods` VALUES (2030,'f');
+INSERT INTO `time_periods` VALUES (2035,'f');
+INSERT INTO `time_periods` VALUES (2040,'f');
+INSERT INTO `time_periods` VALUES (2045,'f');
+INSERT INTO `time_periods` VALUES (2049,'f');
+INSERT INTO `time_periods` VALUES (2050,'f');
+
+
+CREATE TABLE "time_period_labels" (
+	"t_period_labels"	text,
+	"t_period_labels_desc"	text,
+	PRIMARY KEY("t_period_labels")
+);
+INSERT INTO `time_period_labels` VALUES ('e','existing vintages');
+INSERT INTO `time_period_labels` VALUES ('f','future');
+
+CREATE TABLE "time_of_day" (
+	"t_day"	text,
+	PRIMARY KEY("t_day")
+);
+INSERT INTO `time_of_day` VALUES ('day');
+INSERT INTO `time_of_day` VALUES ('night');
+
+
+CREATE TABLE "technology_labels" (
+	"tech_labels"	text,
+	"tech_labels_desc"	text,
+	PRIMARY KEY("tech_labels")
+);
+INSERT INTO `technology_labels` VALUES ('r','resource technology');
+INSERT INTO `technology_labels` VALUES ('p','production technology');
+INSERT INTO `technology_labels` VALUES ('pb','baseload production technology');
+INSERT INTO `technology_labels` VALUES ('ps','storage production technology');
+
+
+CREATE TABLE "technologies" (
+	"tech"	text,
+	"flag"	text,
+	"sector"	text,
+	"tech_desc"	text,
+	"tech_category"	text,
+	PRIMARY KEY("tech"),
+	FOREIGN KEY("sector") REFERENCES "sector_labels"("sector"),
+	FOREIGN KEY("flag") REFERENCES "technology_labels"("tech_labels")
+);
+INSERT INTO `technologies` VALUES ('S_IMPURN','r','supply',' imported uranium','');
+INSERT INTO `technologies` VALUES ('S_IMPNG','r','supply',' imported ng','');
+INSERT INTO `technologies` VALUES ('E_SOLPV','p','electric',' solar photovoltaic','');
+INSERT INTO `technologies` VALUES ('E_WIND','p','electric',' wind plant','');
+INSERT INTO `technologies` VALUES ('E_BATT','ps','electric',' lithium-ion battery','');
+INSERT INTO `technologies` VALUES ('E_HYDRO','p','electric',' hydropower plant','');
+--INSERT INTO `technologies` VALUES ('E_GEO','p','electric',' geothermal plant','');
+INSERT INTO `technologies` VALUES ('E_NUCLEAR','p','electric',' nuclear power plant','');
+INSERT INTO `technologies` VALUES ('E_NGCC','p','electric',' ng power plant','');
+INSERT INTO `technologies` VALUES ('E_TRANS','p','transport',' transmission','');
+INSERT INTO `technologies` VALUES ('E_SUB','p','transport',' substation','');
+INSERT INTO `technologies` VALUES ('E_COND','p','transport',' distribution conductor','');
+INSERT INTO `technologies` VALUES ('E_TWR','p','transport',' distribution tower','');
+INSERT INTO `technologies` VALUES ('USER','p','demand','electricity demand','');
+
+CREATE TABLE "tech_reserve" (
+	"tech"	text,
+	"notes"	text,
+	PRIMARY KEY("tech")
+);
+
+CREATE TABLE "tech_exchange" (
+	"tech"	text,
+	"notes"	TEXT,
+	PRIMARY KEY("tech"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech")
+);
+
+
+CREATE TABLE "tech_curtailment" (
+	"tech"	text,
+	"notes"	TEXT,
+	PRIMARY KEY("tech"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech")
+);
+
+CREATE TABLE "tech_flex" (
+	"tech"	text,
+	"notes"	TEXT,
+	PRIMARY KEY("tech"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech")
+);
+
+CREATE TABLE "tech_annual" (
+	"tech"	text,
+	"notes"	TEXT,
+	PRIMARY KEY("tech"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech")
+);
+
+CREATE TABLE "sector_labels" (
+	"sector"	text,
+	PRIMARY KEY("sector")
+);
+INSERT INTO `sector_labels` VALUES ('supply');
+INSERT INTO `sector_labels` VALUES ('electric');
+INSERT INTO `sector_labels` VALUES ('transport');
+INSERT INTO `sector_labels` VALUES ('demand');
+
+CREATE TABLE "regions" (
+	"regions"	TEXT,
+	"region_note"	TEXT,
+	PRIMARY KEY("regions")
+);
+INSERT INTO `regions` VALUES ('R1',NULL);
+
+
+CREATE TABLE "groups" (
+	"group_name"	text,
+	"notes"	text,
+	PRIMARY KEY("group_name")
+);
+
+CREATE TABLE "commodity_labels" (
+	"comm_labels"	text,
+	"comm_labels_desc"	text,
+	PRIMARY KEY("comm_labels")
+);
+INSERT INTO `commodity_labels` VALUES ('p','physical commodity');
+INSERT INTO `commodity_labels` VALUES ('d','demand commodity');
+
+CREATE TABLE "commodities" (
+	"comm_name"	text,
+	"flag"	text,
+	"comm_desc"	text,
+	PRIMARY KEY("comm_name"),
+	FOREIGN KEY("flag") REFERENCES "commodity_labels"("comm_labels")
+);
+INSERT INTO `commodities` VALUES ('ethos','p','dummy commodity to supply inputs (makes graph easier to read)');
+INSERT INTO `commodities` VALUES ('URN','p','uranium');
+INSERT INTO `commodities` VALUES ('NG','p','nat gas');
+INSERT INTO `commodities` VALUES ('SOL','p','solar insolation');
+INSERT INTO `commodities` VALUES ('WND','p','wind');
+--INSERT INTO `commodities` VALUES ('GEO','p','geothermal');
+INSERT INTO `commodities` VALUES ('HYD','p','hydro');
+INSERT INTO `commodities` VALUES ('ELC_CNT','p','electricity');
+INSERT INTO `commodities` VALUES ('ELC_SUB','p','electricity');
+INSERT INTO `commodities` VALUES ('ELC_DIST','p','electricity');
+INSERT INTO `commodities` VALUES ('ELC_DIST_MID','p','electricity');
+INSERT INTO `commodities` VALUES ('ELC_LOC','p','electricity');
+INSERT INTO `commodities` VALUES ('DMND','d','demand');
+
+
+CREATE TABLE "TechOutputSplit" (
+	"regions"	TEXT,
+	"periods"	integer,
+	"tech"	text,
+	"output_comm"	text,
+	"to_split"	real,
+	"to_split_notes"	text,
+	PRIMARY KEY("regions","periods","tech","output_comm"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech"),
+	FOREIGN KEY("output_comm") REFERENCES "commodities"("comm_name"),
+	FOREIGN KEY("periods") REFERENCES "time_periods"("t_periods")
+);
+
+CREATE TABLE "TechInputSplit" (
+	"regions"	TEXT,
+	"periods"	integer,
+	"input_comm"	text,
+	"tech"	text,
+	"ti_split"	real,
+	"ti_split_notes"	text,
+	PRIMARY KEY("regions","periods","input_comm","tech"),
+	FOREIGN KEY("input_comm") REFERENCES "commodities"("comm_name"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech"),
+	FOREIGN KEY("periods") REFERENCES "time_periods"("t_periods")
+);
+
+CREATE TABLE "StorageDuration" (
+	"regions"	text,
+	"tech"	text,
+	"duration"	real,
+	"duration_notes"	text,
+	PRIMARY KEY("regions","tech")
+);
+INSERT INTO `StorageDuration` VALUES ('R1','E_BATT',8.0,'8-hour duration specified as fraction of a day');
+
+CREATE TABLE "SegFrac" (
+	"season_name"	text,
+	"time_of_day_name"	text,
+	"segfrac"	real CHECK("segfrac" >= 0 AND "segfrac" <= 1),
+	"segfrac_notes"	text,
+	PRIMARY KEY("season_name","time_of_day_name"),
+	FOREIGN KEY("season_name") REFERENCES "time_season"("t_season"),
+	FOREIGN KEY("time_of_day_name") REFERENCES "time_of_day"("t_day")
+);
+INSERT INTO `SegFrac` VALUES ('sunny-w7_12','day',0.030764322496440843,'sunny-w7_12 - Day');
+INSERT INTO `SegFrac` VALUES ('sunny-w7_12','night',0.030764322496440843,'sunny-w7_12 - Night');
+INSERT INTO `SegFrac` VALUES ('sunny-w12_17','day',0.10685556999980331,'sunny-w12_17 - Day');
+INSERT INTO `SegFrac` VALUES ('sunny-w12_17','night',0.10685556999980331,'sunny-w12_17 - Night');
+INSERT INTO `SegFrac` VALUES ('sunny-w17_24','day',0.010304614722973109,'sunny-w17_24 - Day');
+INSERT INTO `SegFrac` VALUES ('sunny-w17_24','night',0.010304614722973109,'sunny-w17_24 - Night');
+INSERT INTO `SegFrac` VALUES ('sunny-w24_31','day',0.00037335531425328834,'sunny-w24_31 - Day');
+INSERT INTO `SegFrac` VALUES ('sunny-w24_31','night',0.00037335531425328834,'sunny-w24_31 - Night');
+INSERT INTO `SegFrac` VALUES ('sunny-w31_38','day',5.316302244280598e-05,'sunny-w31_38 - Day');
+INSERT INTO `SegFrac` VALUES ('sunny-w31_38','night',5.316302244280598e-05,'sunny-w31_38 - Night');
+INSERT INTO `SegFrac` VALUES ('sunny-wother','day',0.0078079487134691304,'sunny-wother - Day');
+INSERT INTO `SegFrac` VALUES ('sunny-wother','night',0.0078079487134691304,'sunny-wother - Night');
+
+INSERT INTO `SegFrac` VALUES ('partsunny-w7_12','day',0.05077949748411795,'partsunny-w7_12 - Day');
+INSERT INTO `SegFrac` VALUES ('partsunny-w7_12','night',0.05077949748411795,'partsunny-w7_12 - Night');
+INSERT INTO `SegFrac` VALUES ('partsunny-w12_17','day',0.1763754800254987,'partsunny-w12_17 - Day');
+INSERT INTO `SegFrac` VALUES ('partsunny-w12_17','night',0.1763754800254987,'partsunny-w12_17 - Night');
+INSERT INTO `SegFrac` VALUES ('partsunny-w17_24','day',0.017008765834532993,'partsunny-w17_24 - Day');
+INSERT INTO `SegFrac` VALUES ('partsunny-w17_24','night',0.017008765834532993,'partsunny-w17_24 - Night');
+INSERT INTO `SegFrac` VALUES ('partsunny-w24_31','day',0.000616259150286839,'partsunny-w24_31 - Day');
+INSERT INTO `SegFrac` VALUES ('partsunny-w24_31','night',0.000616259150286839,'partsunny-w24_31 - Night');
+INSERT INTO `SegFrac` VALUES ('partsunny-w31_38','day',8.775072373834629e-05,'partsunny-w31_38 - Day');
+INSERT INTO `SegFrac` VALUES ('partsunny-w31_38','night',8.775072373834629e-05,'partsunny-w31_38 - Night');
+INSERT INTO `SegFrac` VALUES ('partsunny-wother','day',0.012887776485167105,'partsunny-wother - Day');
+INSERT INTO `SegFrac` VALUES ('partsunny-wother','night',0.012887776485167105,'partsunny-wother - Night');
+
+INSERT INTO `SegFrac` VALUES ('cloudy-w7_12','day',0.01695939650244258,'cloudy-w7_12 - Day');
+INSERT INTO `SegFrac` VALUES ('cloudy-w7_12','night',0.01695939650244258,'cloudy-w7_12 - Night');
+INSERT INTO `SegFrac` VALUES ('cloudy-w12_17','day',0.05890609098675351,'cloudy-w12_17 - Day');
+INSERT INTO `SegFrac` VALUES ('cloudy-w12_17','night',0.05890609098675351,'cloudy-w12_17 - Night');
+INSERT INTO `SegFrac` VALUES ('cloudy-w17_24','day',0.005680607688078508,'cloudy-w17_24 - Day');
+INSERT INTO `SegFrac` VALUES ('cloudy-w17_24','night',0.005680607688078508,'cloudy-w17_24 - Night');
+INSERT INTO `SegFrac` VALUES ('cloudy-w24_31','day',0.00020581895835502668,'cloudy-w24_31 - Day');
+INSERT INTO `SegFrac` VALUES ('cloudy-w24_31','night',0.00020581895835502668,'cloudy-w24_31 - Night');
+INSERT INTO `SegFrac` VALUES ('cloudy-w31_38','day',2.930709028226149e-05,'cloudy-w31_38 - Day');
+INSERT INTO `SegFrac` VALUES ('cloudy-w31_38','night',2.930709028226149e-05,'cloudy-w31_38 - Night');
+INSERT INTO `SegFrac` VALUES ('cloudy-wother','day',0.004304274801363787,'cloudy-wother - Day');
+INSERT INTO `SegFrac` VALUES ('cloudy-wother','night',0.004304274801363787,'cloudy-wother - Night');
+
+
+CREATE TABLE "PlanningReserveMargin" (
+	`regions`	text,
+	`reserve_margin`	REAL,
+	PRIMARY KEY(regions),
+	FOREIGN KEY(`regions`) REFERENCES regions
+);
+INSERT INTO `PlanningReserveMargin` VALUES ('R1',0.15);
+
+
+CREATE TABLE "Output_V_Capacity" (
+	"regions"	text,
+	"scenario"	text,
+	"sector"	text,
+	"tech"	text,
+	"vintage"	integer,
+	"capacity"	real,
+	PRIMARY KEY("regions","scenario","tech","vintage"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech"),
+	FOREIGN KEY("sector") REFERENCES "sector_labels"("sector"),
+	FOREIGN KEY("vintage") REFERENCES "time_periods"("t_periods")
+);
+
+CREATE TABLE "Output_VFlow_Out" (
+	"regions"	text,
+	"scenario"	text,
+	"sector"	text,
+	"t_periods"	integer,
+	"t_season"	text,
+	"t_day"	text,
+	"input_comm"	text,
+	"tech"	text,
+	"vintage"	integer,
+	"output_comm"	text,
+	"vflow_out"	real,
+	PRIMARY KEY("regions","scenario","t_periods","t_season","t_day","input_comm","tech","vintage","output_comm"),
+	FOREIGN KEY("input_comm") REFERENCES "commodities"("comm_name"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech"),
+	FOREIGN KEY("sector") REFERENCES "sector_labels"("sector"),
+	FOREIGN KEY("t_day") REFERENCES "time_of_day"("t_day"),
+	FOREIGN KEY("t_season") REFERENCES "time_periods"("t_periods"),
+	FOREIGN KEY("t_periods") REFERENCES "time_periods"("t_periods"),
+	FOREIGN KEY("vintage") REFERENCES "time_periods"("t_periods"),
+	FOREIGN KEY("output_comm") REFERENCES "commodities"("comm_name")
+);
+
+CREATE TABLE "Output_VFlow_In" (
+	"regions"	text,
+	"scenario"	text,
+	"sector"	text,
+	"t_periods"	integer,
+	"t_season"	text, 
+	"t_day"	text,
+	"input_comm"	text,
+	"tech"	text,
+	"vintage"	integer,
+	"output_comm"	text,
+	"vflow_in"	real,
+	PRIMARY KEY("regions","scenario","t_periods","t_season","t_day","input_comm","tech","vintage","output_comm"),
+	FOREIGN KEY("output_comm") REFERENCES "commodities"("comm_name"),
+	FOREIGN KEY("t_day") REFERENCES "time_of_day"("t_day"),
+	FOREIGN KEY("t_season") REFERENCES "time_periods"("t_periods"),
+	FOREIGN KEY("t_periods") REFERENCES "time_periods"("t_periods"),
+	FOREIGN KEY("input_comm") REFERENCES "commodities"("comm_name"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech"),
+	FOREIGN KEY("vintage") REFERENCES "time_periods"("t_periods"),
+	FOREIGN KEY("sector") REFERENCES "sector_labels"("sector")
+);
+
+CREATE TABLE "Output_Objective" (
+	"scenario"	text,
+	"objective_name"	text,
+	"total_system_cost"	real
+);
+
+CREATE TABLE "Output_Emissions" (
+	"regions"	text,
+	"scenario"	text,
+	"sector"	text,
+	"t_periods"	integer,
+	"emissions_comm"	text,
+	"tech"	text,
+	"vintage"	integer,
+	"emissions"	real,
+	PRIMARY KEY("regions","scenario","t_periods","emissions_comm","tech","vintage"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech"),
+	FOREIGN KEY("emissions_comm") REFERENCES "EmissionActivity"("emis_comm"),
+	FOREIGN KEY("sector") REFERENCES "sector_labels"("sector"),
+	FOREIGN KEY("t_periods") REFERENCES "time_periods"("t_periods"),
+	FOREIGN KEY("vintage") REFERENCES "time_periods"("t_periods")
+);
+
+CREATE TABLE "Output_Curtailment" (
+	"regions"	text,
+	"scenario"	text,
+	"sector"	text,
+	"t_periods"	integer,
+	"t_season"	text,
+	"t_day"	text,
+	"input_comm"	text,
+	"tech"	text,
+	"vintage"	integer,
+	"output_comm"	text,
+	"curtailment"	real,
+	PRIMARY KEY("regions","scenario","t_periods","t_season","t_day","input_comm","tech","vintage","output_comm"),
+	FOREIGN KEY("output_comm") REFERENCES "commodities"("comm_name"),
+	FOREIGN KEY("t_day") REFERENCES "time_of_day"("t_day"),
+	FOREIGN KEY("input_comm") REFERENCES "commodities"("comm_name"),
+	FOREIGN KEY("vintage") REFERENCES "time_periods"("t_periods"),
+	FOREIGN KEY("t_periods") REFERENCES "time_periods"("t_periods"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech"),
+	FOREIGN KEY("t_season") REFERENCES "time_periods"("t_periods")
+);
+
+CREATE TABLE "Output_Costs" (
+	"regions"	text,
+	"scenario"	text,
+	"sector"	text,
+	"output_name"	text,
+	"tech"	text,
+	"vintage"	integer,
+	"output_cost"	real,
+	PRIMARY KEY("regions","scenario","output_name","tech","vintage"),
+	FOREIGN KEY("sector") REFERENCES "sector_labels"("sector"),
+	FOREIGN KEY("vintage") REFERENCES "time_periods"("t_periods"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech")
+);
+
+CREATE TABLE "Output_Duals" (
+	"constraint_name"	text,
+	"scenario"	text,
+	"dual"	real,
+	PRIMARY KEY("constraint_name","scenario")
+);
+
+CREATE TABLE "Output_CapacityByPeriodAndTech" (
+	"regions"	text,
+	"scenario"	text,
+	"sector"	text,
+	"t_periods"	integer,
+	"tech"	text,
+	"capacity"	real,
+	PRIMARY KEY("regions","scenario","t_periods","tech"),
+	FOREIGN KEY("sector") REFERENCES "sector_labels"("sector"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech"),
+	FOREIGN KEY("t_periods") REFERENCES "time_periods"("t_periods")
+);
+
+CREATE TABLE "MyopicBaseyear" (
+	"year"	real
+	"notes"	text	
+);
+
+CREATE TABLE "MinGenGroupWeight" (
+	"regions"	text,
+	"tech"	text,
+	"group_name"	text,
+	"act_fraction"	REAL,
+	"tech_desc"	text,
+	PRIMARY KEY("tech","group_name","regions")
+);
+
+CREATE TABLE "MinGenGroupTarget" (
+	"regions"	text,
+	"periods"	integer,
+	"group_name"	text,
+	"min_act_g"	real,
+	"notes"	text,
+	PRIMARY KEY("periods","group_name","regions")
+);
+
+CREATE TABLE "MinCapacity" (
+	"regions"	text,
+	"periods"	integer,
+	"tech"	text,
+	"mincap"	real,
+	"mincap_units"	text,
+	"mincap_notes"	text,
+	PRIMARY KEY("regions","periods","tech"),
+	FOREIGN KEY("periods") REFERENCES "time_periods"("t_periods"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech")
+);
+
+CREATE TABLE "MinActivity" (
+	"regions"	text,
+	"periods"	integer,
+	"tech"	text,
+	"minact"	real,
+	"minact_units"	text,
+	"minact_notes"	text,
+	PRIMARY KEY("regions","periods","tech"),
+	FOREIGN KEY("periods") REFERENCES "time_periods"("t_periods"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech")
+);
+
+CREATE TABLE "MaxCapacity" (
+	"regions"	text,
+	"periods"	integer,
+	"tech"	text,
+	"maxcap"	real,
+	"maxcap_units"	text,
+	"maxcap_notes"	text,
+	PRIMARY KEY("regions","periods","tech"),
+	FOREIGN KEY("periods") REFERENCES "time_periods"("t_periods"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech")
+);
+--INSERT INTO `MaxCapacity` VALUES ('R1','2025','E_NGCC',0.51,'GW','');
+--INSERT INTO `MaxCapacity` VALUES ('R1','2030','E_NGCC',0.51,'GW','');
+--INSERT INTO `MaxCapacity` VALUES ('R1','2035','E_NGCC',0.51,'GW','');
+--INSERT INTO `MaxCapacity` VALUES ('R1','2040','E_NGCC',0.51,'GW','');
+--INSERT INTO `MaxCapacity` VALUES ('R1','2045','E_NGCC',0.51,'GW','');
+--INSERT INTO `MaxCapacity` VALUES ('R1','2049','E_NGCC',0.51,'GW','');
+
+
+
+CREATE TABLE "MaxActivity" (
+	"regions"	text,
+	"periods"	integer,
+	"tech"	text,
+	"maxact"	real,
+	"maxact_units"	text,
+	"maxact_notes"	text,
+	PRIMARY KEY("regions","periods","tech"),
+	FOREIGN KEY("periods") REFERENCES "time_periods"("t_periods"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech")
+);
+
+
+CREATE TABLE "LifetimeTech" (
+	"regions"	text,
+	"tech"	text,
+	"life"	real,
+	"life_notes"	text,
+	PRIMARY KEY("regions","tech"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech")
+);
+INSERT INTO `LifetimeTech` VALUES ('R1','S_IMPNG',100.0,'');
+INSERT INTO `LifetimeTech` VALUES ('R1','S_IMPURN',100.0,'');
+INSERT INTO `LifetimeTech` VALUES ('R1','E_NGCC',30.0,'');
+INSERT INTO `LifetimeTech` VALUES ('R1','E_SOLPV',30.0,'');
+INSERT INTO `LifetimeTech` VALUES ('R1','E_WIND',30.0,'');
+INSERT INTO `LifetimeTech` VALUES ('R1','E_BATT',30.0,'');
+INSERT INTO `LifetimeTech` VALUES ('R1','E_NUCLEAR',50.0,'');
+--INSERT INTO `LifetimeTech` VALUES ('R1','E_GEO',50.0,'');
+INSERT INTO `LifetimeTech` VALUES ('R1','E_HYDRO',50.0,'');
+INSERT INTO `LifetimeTech` VALUES ('R1','E_TRANS',50.0,'');
+INSERT INTO `LifetimeTech` VALUES ('R1','E_SUB',50.0,'');
+INSERT INTO `LifetimeTech` VALUES ('R1','E_COND',50.0,'');
+INSERT INTO `LifetimeTech` VALUES ('R1','E_TWR',50.0,'');
+
+CREATE TABLE "LifetimeProcess" (
+	"regions"	text,
+	"tech"	text,
+	"vintage"	integer,
+	"life_process"	real,
+	"life_process_notes"	text,
+	PRIMARY KEY("regions","tech","vintage"),
+	FOREIGN KEY("vintage") REFERENCES "time_periods"("t_periods"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech")
+);
+CREATE TABLE "LifetimeLoanTech" (
+	"regions"	text,
+	"tech"	text,
+	"loan"	real,
+	"loan_notes"	text,
+	PRIMARY KEY("regions","tech"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech")
+);
+INSERT INTO `LifetimeLoanTech` VALUES ('R1','S_IMPNG',100.0,'');
+INSERT INTO `LifetimeLoanTech` VALUES ('R1','S_IMPURN',100.0,'');
+INSERT INTO `LifetimeLoanTech` VALUES ('R1','E_NGCC',30.0,'');
+INSERT INTO `LifetimeLoanTech` VALUES ('R1','E_SOLPV',30.0,'');
+INSERT INTO `LifetimeLoanTech` VALUES ('R1','E_WIND',50.0,'');
+INSERT INTO `LifetimeLoanTech` VALUES ('R1','E_BATT',30.0,'');
+INSERT INTO `LifetimeLoanTech` VALUES ('R1','E_NUCLEAR',50.0,'');
+--INSERT INTO `LifetimeLoanTech` VALUES ('R1','E_GEO',50.0,'');
+INSERT INTO `LifetimeLoanTech` VALUES ('R1','E_HYDRO',50.0,'');
+INSERT INTO `LifetimeLoanTech` VALUES ('R1','E_TRANS',50.0,'');
+INSERT INTO `LifetimeLoanTech` VALUES ('R1','E_SUB',50.0,'');
+INSERT INTO `LifetimeLoanTech` VALUES ('R1','E_COND',50.0,'');
+INSERT INTO `LifetimeLoanTech` VALUES ('R1','E_TWR',50.0,'');
+
+
+CREATE TABLE "GrowthRateSeed" (
+	"regions"	text,
+	"tech"	text,
+	"growthrate_seed"	real,
+	"growthrate_seed_units"	text,
+	"growthrate_seed_notes"	text,
+	PRIMARY KEY("regions","tech"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech")
+);
+
+CREATE TABLE "GrowthRateMax" (
+	"regions"	text,
+	"tech"	text,
+	"growthrate_max"	real,
+	"growthrate_max_notes"	text,
+	PRIMARY KEY("regions","tech"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech")
+);
+
+CREATE TABLE "GlobalDiscountRate" (
+	"rate"	real
+);
+INSERT INTO `GlobalDiscountRate` VALUES (0.05);
+
+CREATE TABLE "ExistingCapacity" (
+	"regions"	text,
+	"tech"	text,
+	"vintage"	integer,
+	"exist_cap"	real,
+	"exist_cap_units"	text,
+	"exist_cap_notes"	text,
+	PRIMARY KEY("regions","tech","vintage"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech"),
+	FOREIGN KEY("vintage") REFERENCES "time_periods"("t_periods")
+);
+INSERT INTO `ExistingCapacity` VALUES ('R1','E_WIND',2020,0.101,'GW','');
+INSERT INTO `ExistingCapacity` VALUES ('R1','E_SOLPV',2020,0.1165,'GW','');
+INSERT INTO `ExistingCapacity` VALUES ('R1','E_NGCC',2020,0.51,'GW','');
+INSERT INTO `ExistingCapacity` VALUES ('R1','S_IMPNG',2020,1,'GW','');
+INSERT INTO `ExistingCapacity` VALUES ('R1','USER',2020,4,'GW','');
+INSERT INTO `ExistingCapacity` VALUES ('R1','E_TRANS',2020,3.08,'GW','');
+INSERT INTO `ExistingCapacity` VALUES ('R1','E_SUB',2020,3.08,'GW','');
+INSERT INTO `ExistingCapacity` VALUES ('R1','E_COND',2020,2.8,'GW','');
+INSERT INTO `ExistingCapacity` VALUES ('R1','E_TWR',2020,2.8,'GW','');
+
+
+
+CREATE TABLE "EmissionLimit" (
+	"regions"	text,
+	"periods"	integer,
+	"emis_comm"	text,
+	"emis_limit"	real,
+	"emis_limit_units"	text,
+	"emis_limit_notes"	text,
+	PRIMARY KEY("regions","periods","emis_comm"),
+	FOREIGN KEY("periods") REFERENCES "time_periods"("t_periods"),
+	FOREIGN KEY("emis_comm") REFERENCES "commodities"("comm_name")
+);
+
+CREATE TABLE "EmissionActivity" (
+	"regions"	text,
+	"emis_comm"	text,
+	"input_comm"	text,
+	"tech"	text,
+	"vintage"	integer,
+	"output_comm"	text,
+	"emis_act"	real,
+	"emis_act_units"	text,
+	"emis_act_notes"	text,
+	PRIMARY KEY("regions","emis_comm","input_comm","tech","vintage","output_comm"),
+	FOREIGN KEY("vintage") REFERENCES "time_periods"("t_periods"),
+	FOREIGN KEY("input_comm") REFERENCES "commodities"("comm_name"),
+	FOREIGN KEY("output_comm") REFERENCES "commodities"("comm_name"),
+	FOREIGN KEY("emis_comm") REFERENCES "commodities"("comm_name"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech")
+);
+
+CREATE TABLE "Efficiency" (
+	"regions"	text,
+	"input_comm"	text,
+	"tech"	text,
+	"vintage"	integer,
+	"output_comm"	text,
+	"efficiency"	real CHECK("efficiency" > 0),
+	"eff_notes"	text,
+	PRIMARY KEY("regions","input_comm","tech","vintage","output_comm"),
+	FOREIGN KEY("output_comm") REFERENCES "commodities"("comm_name"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech"),
+	FOREIGN KEY("vintage") REFERENCES "time_periods"("t_periods"),
+	FOREIGN KEY("input_comm") REFERENCES "commodities"("comm_name")
+);
+INSERT INTO `Efficiency` VALUES ('R1','WND','E_WIND',2020,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','SOL','E_SOLPV',2020,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','NG','E_NGCC',2020,'ELC_CNT',0.455,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_CNT','E_TRANS',2020,'ELC_SUB',0.993,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_SUB','E_SUB',2020,'ELC_DIST',0.996,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_DIST','E_COND',2020,'ELC_DIST_MID',0.93,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_DIST_MID','E_TWR',2020,'ELC_LOC',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_LOC','USER',2020,'DMND',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPNG',2020,'NG',1.0,'');
+
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPNG',2025,'NG',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPURN',2025,'URN',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','NG','E_NGCC',2025,'ELC_CNT',0.62,'');
+INSERT INTO `Efficiency` VALUES ('R1','SOL','E_SOLPV',2025,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','WND','E_WIND',2025,'ELC_CNT',0.368,'');
+--INSERT INTO `Efficiency` VALUES ('R1','GEO','E_GEO',2025,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','HYD','E_HYDRO',2025,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','URN','E_NUCLEAR',2025,'ELC_CNT',0.34,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_CNT','E_BATT',2025,'ELC_CNT',0.85,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_CNT','E_TRANS',2025,'ELC_SUB',0.993,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_SUB','E_SUB',2025,'ELC_DIST',0.996,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_DIST','E_COND',2025,'ELC_DIST_MID',0.93,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_DIST_MID','E_TWR',2025,'ELC_LOC',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_LOC','USER',2025,'DMND',1.0,'');
+
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPNG',2030,'NG',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPURN',2030,'URN',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','NG','E_NGCC',2030,'ELC_CNT',0.62,'');
+INSERT INTO `Efficiency` VALUES ('R1','SOL','E_SOLPV',2030,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','WND','E_WIND',2030,'ELC_CNT',0.368,'');
+--INSERT INTO `Efficiency` VALUES ('R1','GEO','E_GEO',2030,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','HYD','E_HYDRO',2030,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','URN','E_NUCLEAR',2030,'ELC_CNT',0.36,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_CNT','E_BATT',2030,'ELC_CNT',0.85,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_CNT','E_TRANS',2030,'ELC_SUB',0.993,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_SUB','E_SUB',2030,'ELC_DIST',0.996,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_DIST','E_COND',2030,'ELC_DIST_MID',0.93,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_DIST_MID','E_TWR',2030,'ELC_LOC',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_LOC','USER',2030,'DMND',1.0,'');
+
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPNG',2035,'NG',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPURN',2035,'URN',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','NG','E_NGCC',2035,'ELC_CNT',0.62,'');
+INSERT INTO `Efficiency` VALUES ('R1','SOL','E_SOLPV',2035,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','WND','E_WIND',2035,'ELC_CNT',0.368,'');
+--INSERT INTO `Efficiency` VALUES ('R1','GEO','E_GEO',2035,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','HYD','E_HYDRO',2035,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','URN','E_NUCLEAR',2035,'ELC_CNT',0.38,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_CNT','E_BATT',2035,'ELC_CNT',0.85,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_CNT','E_TRANS',2035,'ELC_SUB',0.993,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_SUB','E_SUB',2035,'ELC_DIST',0.996,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_DIST','E_COND',2035,'ELC_DIST_MID',0.93,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_DIST_MID','E_TWR',2035,'ELC_LOC',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_LOC','USER',2035,'DMND',1.0,'');
+
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPNG',2040,'NG',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPURN',2040,'URN',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','NG','E_NGCC',2040,'ELC_CNT',0.62,'');
+INSERT INTO `Efficiency` VALUES ('R1','SOL','E_SOLPV',2040,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','WND','E_WIND',2040,'ELC_CNT',0.368,'');
+--INSERT INTO `Efficiency` VALUES ('R1','GEO','E_GEO',2040,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','HYD','E_HYDRO',2040,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','URN','E_NUCLEAR',2040,'ELC_CNT',0.40,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_CNT','E_BATT',2040,'ELC_CNT',0.85,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_CNT','E_TRANS',2040,'ELC_SUB',0.993,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_SUB','E_SUB',2040,'ELC_DIST',0.996,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_DIST','E_COND',2040,'ELC_DIST_MID',0.93,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_DIST_MID','E_TWR',2040,'ELC_LOC',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_LOC','USER',2040,'DMND',1.0,'');
+
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPNG',2045,'NG',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPURN',2045,'URN',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','NG','E_NGCC',2045,'ELC_CNT',0.62,'');
+INSERT INTO `Efficiency` VALUES ('R1','SOL','E_SOLPV',2045,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','WND','E_WIND',2045,'ELC_CNT',0.368,'');
+--INSERT INTO `Efficiency` VALUES ('R1','GEO','E_GEO',2045,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','HYD','E_HYDRO',2045,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','URN','E_NUCLEAR',2045,'ELC_CNT',0.41,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_CNT','E_BATT',2045,'ELC_CNT',0.85,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_CNT','E_TRANS',2045,'ELC_SUB',0.993,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_SUB','E_SUB',2045,'ELC_DIST',0.996,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_DIST','E_COND',2045,'ELC_DIST_MID',0.93,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_DIST_MID','E_TWR',2045,'ELC_LOC',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_LOC','USER',2045,'DMND',1.0,'');
+
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPNG',2049,'NG',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPURN',2049,'URN',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','NG','E_NGCC',2049,'ELC_CNT',0.62,'');
+INSERT INTO `Efficiency` VALUES ('R1','SOL','E_SOLPV',2049,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','WND','E_WIND',2049,'ELC_CNT',0.368,'');
+--INSERT INTO `Efficiency` VALUES ('R1','GEO','E_GEO',2049,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','HYD','E_HYDRO',2049,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','URN','E_NUCLEAR',2049,'ELC_CNT',0.42,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_CNT','E_BATT',2049,'ELC_CNT',0.85,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_CNT','E_TRANS',2049,'ELC_SUB',0.993,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_SUB','E_SUB',2049,'ELC_DIST',0.996,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_DIST','E_COND',2049,'ELC_DIST_MID',0.93,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_DIST_MID','E_TWR',2049,'ELC_LOC',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ELC_LOC','USER',2049,'DMND',1.0,'');
+
+
+CREATE TABLE "DiscountRate" (
+	"regions"	text,
+	"tech"	text,
+	"vintage"	integer,
+	"tech_rate"	real,
+	"tech_rate_notes"	text,
+	PRIMARY KEY("regions","tech","vintage"),
+	FOREIGN KEY("vintage") REFERENCES "time_periods"("t_periods"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech")
+);
+
+CREATE TABLE "DemandSpecificDistribution" (
+	"regions"	text,
+	"season_name"	text,
+	"time_of_day_name"	text,
+	"demand_name"	text,
+	"dds"	real CHECK("dds" >= 0 AND "dds" <= 1),
+	"dds_notes"	text,
+	PRIMARY KEY("regions","season_name","time_of_day_name","demand_name"),
+	FOREIGN KEY("time_of_day_name") REFERENCES "time_of_day"("t_day"),
+	FOREIGN KEY("season_name") REFERENCES "time_season"("t_season"),
+	FOREIGN KEY("demand_name") REFERENCES "commodities"("comm_name")
+);
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','sunny-w7_12','day','DMND',0.030764322496440843,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','sunny-w7_12','night','DMND',0.030764322496440843,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','sunny-w12_17','day','DMND',0.10685556999980331,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','sunny-w12_17','night','DMND',0.10685556999980331,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','sunny-w17_24','day','DMND',0.010304614722973109,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','sunny-w17_24','night','DMND',0.010304614722973109,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','sunny-w24_31','day','DMND',0.00037335531425328834,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','sunny-w24_31','night','DMND',0.00037335531425328834,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','sunny-w31_38','day','DMND',5.316302244280598e-05,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','sunny-w31_38','night','DMND',5.316302244280598e-05,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','sunny-wother','day','DMND',0.0078079487134691304,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','sunny-wother','night','DMND',0.0078079487134691304,'');
+
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','partsunny-w7_12','day','DMND',0.05077949748411795,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','partsunny-w7_12','night','DMND',0.05077949748411795,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','partsunny-w12_17','day','DMND',0.1763754800254987,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','partsunny-w12_17','night','DMND',0.1763754800254987,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','partsunny-w17_24','day','DMND',0.017008765834532993,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','partsunny-w17_24','night','DMND',0.017008765834532993,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','partsunny-w24_31','day','DMND',0.000616259150286839,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','partsunny-w24_31','night','DMND',0.000616259150286839,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','partsunny-w31_38','day','DMND',8.775072373834629e-05,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','partsunny-w31_38','night','DMND',8.775072373834629e-05,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','partsunny-wother','day','DMND',0.012887776485167105,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','partsunny-wother','night','DMND',0.012887776485167105,'');
+
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','cloudy-w7_12','day','DMND',0.01695939650244258,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','cloudy-w7_12','night','DMND',0.01695939650244258,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','cloudy-w12_17','day','DMND',0.05890609098675351,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','cloudy-w12_17','night','DMND',0.05890609098675351,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','cloudy-w17_24','day','DMND',0.005680607688078508,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','cloudy-w17_24','night','DMND',0.005680607688078508,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','cloudy-w24_31','day','DMND',0.00020581895835502668,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','cloudy-w24_31','night','DMND',0.00020581895835502668,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','cloudy-w31_38','day','DMND',2.930709028226149e-05,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','cloudy-w31_38','night','DMND',2.930709028226149e-05,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','cloudy-wother','day','DMND',0.004304274801363787,'');
+INSERT INTO `DemandSpecificDistribution` VALUES ('R1','cloudy-wother','night','DMND',0.004304274801363787,'');
+
+
+CREATE TABLE "Demand" (
+	"regions"	text,
+	"periods"	integer,
+	"demand_comm"	text,
+	"demand"	real,
+	"demand_units"	text,
+	"demand_notes"	text,
+	PRIMARY KEY("regions","periods","demand_comm"),
+	FOREIGN KEY("demand_comm") REFERENCES "commodities"("comm_name"),
+	FOREIGN KEY("periods") REFERENCES "time_periods"("t_periods")
+);
+INSERT INTO `Demand` VALUES ('R1',2025,'DMND',67.73161387286,'','');
+INSERT INTO `Demand` VALUES ('R1',2030,'DMND',67.6240914746017,'','');
+INSERT INTO `Demand` VALUES ('R1',2035,'DMND',66.33551323376446,'','');
+INSERT INTO `Demand` VALUES ('R1',2040,'DMND',65.91065369888497,'','');
+INSERT INTO `Demand` VALUES ('R1',2045,'DMND',65.69444048534028,'','');
+INSERT INTO `Demand` VALUES ('R1',2049,'DMND',65.43758539715922,'','');
+
+CREATE TABLE "CostVariable" (
+	"regions"	text NOT NULL,
+	"periods"	integer NOT NULL,
+	"tech"	text NOT NULL,
+	"vintage"	integer NOT NULL,
+	"cost_variable"	real,
+	"cost_variable_units"	text,
+	"cost_variable_notes"	text,
+	PRIMARY KEY("regions","periods","tech","vintage"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech"),
+	FOREIGN KEY("periods") REFERENCES "time_periods"("t_periods"),
+	FOREIGN KEY("vintage") REFERENCES "time_periods"("t_periods")
+);
+INSERT INTO `CostVariable` VALUES ('R1',2025,'S_IMPNG',2020,4.142783754655357,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'S_IMPNG',2020,4.684345584230079,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'S_IMPNG',2020,5.0854209817676574,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPNG',2020,5.43587641851481,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPNG',2020,5.452455426476691,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPNG',2020,5.691560036003803,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2025,'S_IMPNG',2025,4.142783754655357,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'S_IMPNG',2025,4.684345584230079,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'S_IMPNG',2025,5.0854209817676574,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPNG',2025,5.43587641851481,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPNG',2025,5.452455426476691,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPNG',2025,5.691560036003803,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'S_IMPNG',2030,4.684345584230079,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'S_IMPNG',2030,5.0854209817676574,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPNG',2030,5.43587641851481,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPNG',2030,5.452455426476691,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPNG',2030,5.691560036003803,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'S_IMPNG',2035,5.0854209817676574,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPNG',2035,5.43587641851481,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPNG',2035,5.452455426476691,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPNG',2035,5.691560036003803,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPNG',2040,5.43587641851481,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPNG',2040,5.452455426476691,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPNG',2040,5.691560036003803,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPNG',2045,5.452455426476691,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPNG',2045,5.691560036003803,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPNG',2049,5.691560036003803,'$M/PJ','');
+
+INSERT INTO `CostVariable` VALUES ('R1',2025,'S_IMPURN',2025,0.03676311156997581,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'S_IMPURN',2025,0.0353815557849879,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'S_IMPURN',2025,0.03938155578498791,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPURN',2025,0.0433815557849879,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPURN',2025,0.04738155578498791,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPURN',2025,0.05276311156997581,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'S_IMPURN',2030,0.0353815557849879,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'S_IMPURN',2030,0.03938155578498791,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPURN',2030,0.0433815557849879,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPURN',2030,0.04738155578498791,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPURN',2030,0.05276311156997581,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'S_IMPURN',2035,0.03938155578498791,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPURN',2035,0.0433815557849879,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPURN',2035,0.04738155578498791,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPURN',2035,0.05276311156997581,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPURN',2040,0.0433815557849879,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPURN',2040,0.04738155578498791,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPURN',2040,0.05276311156997581,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPURN',2045,0.04738155578498791,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPURN',2045,0.05276311156997581,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPURN',2049,0.05276311156997581,'$M/PJ','');
+
+INSERT INTO `CostVariable` VALUES ('R1',2025,'E_NGCC',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'E_NGCC',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_NGCC',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_NGCC',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_NGCC',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_NGCC',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2025,'E_NGCC',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'E_NGCC',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_NGCC',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_NGCC',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_NGCC',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_NGCC',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'E_NGCC',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_NGCC',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_NGCC',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_NGCC',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_NGCC',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_NGCC',2035,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_NGCC',2035,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_NGCC',2035,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_NGCC',2035,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_NGCC',2040,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_NGCC',2040,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_NGCC',2040,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_NGCC',2045,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_NGCC',2045,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_NGCC',2049,0.556,'$M/PJ','');
+
+INSERT INTO `CostVariable` VALUES ('R1',2025,'E_NUCLEAR',2025,0.789,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'E_NUCLEAR',2025,0.789,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_NUCLEAR',2025,0.789,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_NUCLEAR',2025,0.789,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_NUCLEAR',2025,0.789,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_NUCLEAR',2025,0.789,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'E_NUCLEAR',2030,0.789,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_NUCLEAR',2030,0.789,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_NUCLEAR',2030,0.789,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_NUCLEAR',2030,0.789,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_NUCLEAR',2030,0.789,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_NUCLEAR',2035,0.789,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_NUCLEAR',2035,0.789,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_NUCLEAR',2035,0.789,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_NUCLEAR',2035,0.789,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_NUCLEAR',2040,0.789,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_NUCLEAR',2040,0.789,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_NUCLEAR',2040,0.789,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_NUCLEAR',2045,0.789,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_NUCLEAR',2045,0.789,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_NUCLEAR',2049,0.789,'$M/PJ','');
+
+INSERT INTO `CostVariable` VALUES ('R1',2025,'E_TRANS',2020,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'E_TRANS',2020,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_TRANS',2020,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_TRANS',2020,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_TRANS',2020,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_TRANS',2020,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2025,'E_TRANS',2025,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'E_TRANS',2025,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_TRANS',2025,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_TRANS',2025,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_TRANS',2025,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_TRANS',2025,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'E_TRANS',2030,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_TRANS',2030,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_TRANS',2030,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_TRANS',2030,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_TRANS',2030,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_TRANS',2035,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_TRANS',2035,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_TRANS',2035,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_TRANS',2035,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_TRANS',2040,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_TRANS',2040,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_TRANS',2040,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_TRANS',2045,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_TRANS',2045,0.86,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_TRANS',2049,0.86,'$M/PJ','');
+
+INSERT INTO `CostVariable` VALUES ('R1',2025,'E_COND',2020,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'E_COND',2020,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_COND',2020,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_COND',2020,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_COND',2020,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_COND',2020,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2025,'E_COND',2025,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'E_COND',2025,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_COND',2025,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_COND',2025,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_COND',2025,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_COND',2025,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'E_COND',2030,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_COND',2030,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_COND',2030,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_COND',2030,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_COND',2030,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_COND',2035,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_COND',2035,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_COND',2035,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_COND',2035,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_COND',2040,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_COND',2040,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_COND',2040,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_COND',2045,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_COND',2045,1.15,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_COND',2049,1.15,'$M/PJ','');
+
+
+CREATE TABLE "CostInvest" (
+	"regions"	text,
+	"tech"	text,
+	"vintage"	integer,
+	"cost_invest"	real,
+	"cost_invest_units"	text,
+	"cost_invest_notes"	text,
+	PRIMARY KEY("regions","tech","vintage"),
+	FOREIGN KEY("vintage") REFERENCES "time_periods"("t_periods"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech")
+);
+INSERT INTO `CostInvest` VALUES ('R1','E_NGCC',2025,940.762,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_SOLPV',2025,1037.0137867291944,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_WIND',2025,1128.0641270696044,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_NUCLEAR',2025,7040.489,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_HYDRO',2025,2547.0402703883365,'$M/GW','');
+--INSERT INTO `CostInvest` VALUES ('R1','E_GEO',2025,6173.466352505309,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_BATT',2025,2036.3861352042952,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_TRANS',2025,2251.8,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_SUB',2025,500.2,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_COND',2025,1057.2,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_TWR',2025,634.3,'$M/GW','');
+
+INSERT INTO `CostInvest` VALUES ('R1','E_NGCC',2030,912.254,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_SOLPV',2030,879.3122043999482,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_WIND',2030,794.1357017193021,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_NUCLEAR',2030,6810.782,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_HYDRO',2030,2461.4026729071234,'$M/GW','');
+--INSERT INTO `CostInvest` VALUES ('R1','E_GEO',2030,5631.692720888927,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_BATT',2030,1552.9576551941923,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_TRANS',2030,2251.8,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_SUB',2030,500.2,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_COND',2030,1057.2,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_TWR',2030,634.3,'$M/GW','');
+
+--NSERT INTO `CostInvest` VALUES ('R1','E_NGCC',2035,891.422,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_SOLPV',2035,811.1286090962066,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_WIND',2035,756.2696485505144,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_NUCLEAR',2035,6581.069,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_HYDRO',2035,2152.135456835525,'$M/GW','');
+--INSERT INTO `CostInvest` VALUES ('R1','E_GEO',2035,5492.214780488436,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_BATT',2035,1500.885092130927,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_TRANS',2035,2251.8,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_SUB',2035,500.2,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_COND',2035,1057.2,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_TWR',2035,634.3,'$M/GW','');
+
+INSERT INTO `CostInvest` VALUES ('R1','E_NGCC',2040,872.782,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_SOLPV',2040,743.6408539044975,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_WIND',2040,718.4035953817266,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_NUCLEAR',2040,6351.363,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_HYDRO',2040,2240.1643573981755,'$M/GW','');
+--INSERT INTO `CostInvest` VALUES ('R1','E_GEO',2040,5356.2796882320945,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_BATT',2040,1448.2720503044245,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_TRANS',2040,2251.8,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_SUB',2040,500.2,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_COND',2040,1057.2,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_TWR',2040,634.3,'$M/GW','');
+
+INSERT INTO `CostInvest` VALUES ('R1','E_NGCC',2045,854.142,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_SOLPV',2045,675.8054132036226,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_WIND',2045,680.5375422129389,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_NUCLEAR',2045,6121.653,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_HYDRO',2045,2240.1643573981755,'$M/GW','');
+--INSERT INTO `CostInvest` VALUES ('R1','E_GEO',2045,5223.269612600261,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_BATT',2045,1396.7392995694233,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_TRANS',2045,2251.8,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_SUB',2045,500.2,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_COND',2045,1057.2,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_TWR',2045,634.3,'$M/GW','');
+
+INSERT INTO `CostInvest` VALUES ('R1','E_NGCC',2049,837.695,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_SOLPV',2049,607.9801991489425,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_WIND',2049,642.671489044151,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_NUCLEAR',2049,5891.94,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_HYDRO',2049,2240.1643573981755,'$M/GW','');
+--INSERT INTO `CostInvest` VALUES ('R1','E_GEO',2049,5094.407586792895,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_BATT',2049,1344.666736506158,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_TRANS',2049,2251.8,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_SUB',2049,500.2,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_COND',2049,1057.2,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_TWR',2049,634.3,'$M/GW','');
+
+
+CREATE TABLE "CostFixed" (
+	"regions"	text NOT NULL,
+	"periods"	integer NOT NULL,
+	"tech"	text NOT NULL,
+	"vintage"	integer NOT NULL,
+	"cost_fixed"	real,
+	"cost_fixed_units"	text,
+	"cost_fixed_notes"	text,
+	PRIMARY KEY("regions","periods","tech","vintage"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech"),
+	FOREIGN KEY("periods") REFERENCES "time_periods"("t_periods"),
+	FOREIGN KEY("vintage") REFERENCES "time_periods"("t_periods")
+);
+INSERT INTO `CostFixed` VALUES ('R1',2025,'E_NGCC',2020,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_NGCC',2020,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_NGCC',2020,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_NGCC',2020,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_NGCC',2020,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_NGCC',2020,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2025,'E_NGCC',2025,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_NGCC',2025,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_NGCC',2025,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_NGCC',2025,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_NGCC',2025,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_NGCC',2025,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_NGCC',2030,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_NGCC',2030,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_NGCC',2030,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_NGCC',2030,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_NGCC',2030,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_NGCC',2035,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_NGCC',2035,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_NGCC',2035,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_NGCC',2035,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_NGCC',2040,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_NGCC',2040,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_NGCC',2040,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_NGCC',2045,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_NGCC',2045,28,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_NGCC',2049,28,'$M/GWyr','');
+
+INSERT INTO `CostFixed` VALUES ('R1',2025,'E_SOLPV',2020,22.63627209221681,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_SOLPV',2020,22.63627209221681,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_SOLPV',2020,22.63627209221681,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_SOLPV',2020,22.63627209221681,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_SOLPV',2020,22.63627209221681,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_SOLPV',2020,22.63627209221681,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2025,'E_SOLPV',2025,19.706269473029558,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_SOLPV',2025,19.706269473029558,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_SOLPV',2025,19.706269473029558,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_SOLPV',2025,19.706269473029558,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_SOLPV',2025,19.706269473029558,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_SOLPV',2025,19.706269473029558,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_SOLPV',2030,18.671461143143834,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_SOLPV',2030,18.671461143143834,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_SOLPV',2030,18.671461143143834,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_SOLPV',2030,18.671461143143834,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_SOLPV',2030,18.671461143143834,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_SOLPV',2035,17.595637160350805,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_SOLPV',2035,17.595637160350805,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_SOLPV',2035,17.595637160350805,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_SOLPV',2035,17.595637160350805,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_SOLPV',2040,16.52367250343756,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_SOLPV',2040,16.52367250343756,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_SOLPV',2040,16.52367250343756,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_SOLPV',2045,15.456238736323305,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_SOLPV',2045,15.456238736323305,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_SOLPV',2049,14.39212334154401,'$M/GWyr','');
+
+INSERT INTO `CostFixed` VALUES ('R1',2025,'E_WIND',2020,43.006223430575496,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_WIND',2020,43.006223430575496,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_WIND',2020,43.006223430575496,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_WIND',2020,43.006223430575496,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_WIND',2020,43.006223430575496,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_WIND',2020,43.006223430575496,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2025,'E_WIND',2025,41.52179807508488,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_WIND',2025,41.52179807508488,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_WIND',2025,41.52179807508488,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_WIND',2025,41.52179807508488,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_WIND',2025,41.52179807508488,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_WIND',2025,41.52179807508488,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_WIND',2030,40.03737271959427,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_WIND',2030,40.03737271959427,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_WIND',2030,40.03737271959427,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_WIND',2030,40.03737271959427,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_WIND',2030,40.03737271959427,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_WIND',2035,38.829546967163786,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_WIND',2035,38.829546967163786,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_WIND',2035,38.829546967163786,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_WIND',2035,38.829546967163786,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_WIND',2040,37.62203238626208,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_WIND',2040,37.62203238626208,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_WIND',2040,37.62203238626208,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_WIND',2045,36.414206633831604,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_WIND',2045,36.414206633831604,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_WIND',2049,35.206692052929895,'$M/GWyr','');
+
+INSERT INTO `CostFixed` VALUES ('R1',2025,'E_HYDRO',2025,64.3982274059569,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_HYDRO',2025,64.3982274059569,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_HYDRO',2025,64.3982274059569,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_HYDRO',2025,64.3982274059569,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_HYDRO',2025,64.3982274059569,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_HYDRO',2025,64.3982274059569,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_HYDRO',2030,62.16253358548667,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_HYDRO',2030,62.16253358548667,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_HYDRO',2030,62.16253358548667,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_HYDRO',2030,62.16253358548667,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_HYDRO',2030,62.16253358548667,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_HYDRO',2035,62.16253358548667,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_HYDRO',2035,62.16253358548667,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_HYDRO',2035,62.16253358548667,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_HYDRO',2035,62.16253358548667,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_HYDRO',2040,58.31672362536723,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_HYDRO',2040,58.31672362536723,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_HYDRO',2040,58.31672362536723,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_HYDRO',2045,58.31672362536723,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_HYDRO',2045,58.31672362536723,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_HYDRO',2049,58.31672362536723,'$M/GWyr','');
+
+--INSERT INTO `CostFixed` VALUES ('R1',2025,'E_GEO',2025,102.20466482129176,'$M/GWyr','');
+--INSERT INTO `CostFixed` VALUES ('R1',2030,'E_GEO',2025,102.20466482129176,'$M/GWyr','');
+--INSERT INTO `CostFixed` VALUES ('R1',2035,'E_GEO',2025,102.20466482129176,'$M/GWyr','');
+--INSERT INTO `CostFixed` VALUES ('R1',2040,'E_GEO',2025,102.20466482129176,'$M/GWyr','');
+--INSERT INTO `CostFixed` VALUES ('R1',2045,'E_GEO',2025,102.20466482129176,'$M/GWyr','');
+--INSERT INTO `CostFixed` VALUES ('R1',2049,'E_GEO',2025,102.20466482129176,'$M/GWyr','');
+--INSERT INTO `CostFixed` VALUES ('R1',2030,'E_GEO',2030,97.04438631112475,'$M/GWyr','');
+--INSERT INTO `CostFixed` VALUES ('R1',2035,'E_GEO',2030,97.04438631112475,'$M/GWyr','');
+--INSERT INTO `CostFixed` VALUES ('R1',2040,'E_GEO',2030,97.04438631112475,'$M/GWyr','');
+--INSERT INTO `CostFixed` VALUES ('R1',2045,'E_GEO',2030,97.04438631112475,'$M/GWyr','');
+--INSERT INTO `CostFixed` VALUES ('R1',2049,'E_GEO',2030,97.04438631112475,'$M/GWyr','');
+--INSERT INTO `CostFixed` VALUES ('R1',2035,'E_GEO',2035,97.04438631112475,'$M/GWyr','');
+--INSERT INTO `CostFixed` VALUES ('R1',2040,'E_GEO',2035,97.04438631112475,'$M/GWyr','');
+--INSERT INTO `CostFixed` VALUES ('R1',2045,'E_GEO',2035,97.04438631112475,'$M/GWyr','');
+--INSERT INTO `CostFixed` VALUES ('R1',2049,'E_GEO',2035,97.04438631112475,'$M/GWyr','');
+--INSERT INTO `CostFixed` VALUES ('R1',2040,'E_GEO',2040,97.04438631112475,'$M/GWyr','');
+--INSERT INTO `CostFixed` VALUES ('R1',2045,'E_GEO',2040,97.04438631112475,'$M/GWyr','');
+--INSERT INTO `CostFixed` VALUES ('R1',2049,'E_GEO',2040,97.04438631112475,'$M/GWyr','');
+--INSERT INTO `CostFixed` VALUES ('R1',2045,'E_GEO',2045,97.04438631112475,'$M/GWyr','');
+--INSERT INTO `CostFixed` VALUES ('R1',2049,'E_GEO',2045,97.04438631112475,'$M/GWyr','');
+--INSERT INTO `CostFixed` VALUES ('R1',2049,'E_GEO',2049,97.04438631112475,'$M/GWyr','');
+
+INSERT INTO `CostFixed` VALUES ('R1',2025,'E_NUCLEAR',2025,145.96,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_NUCLEAR',2025,145.96,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_NUCLEAR',2025,145.96,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_NUCLEAR',2025,145.96,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_NUCLEAR',2025,145.96,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_NUCLEAR',2025,145.96,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_NUCLEAR',2030,145.96,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_NUCLEAR',2030,145.96,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_NUCLEAR',2030,145.96,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_NUCLEAR',2030,145.96,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_NUCLEAR',2030,145.96,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_NUCLEAR',2035,145.96,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_NUCLEAR',2035,145.96,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_NUCLEAR',2035,145.96,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_NUCLEAR',2035,145.96,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_NUCLEAR',2040,145.96,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_NUCLEAR',2040,145.96,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_NUCLEAR',2040,145.96,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_NUCLEAR',2045,145.96,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_NUCLEAR',2045,145.96,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_NUCLEAR',2049,145.96,'$M/GWyr','');
+
+INSERT INTO `CostFixed` VALUES ('R1',2025,'E_BATT',2025,59.131671326153494,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_BATT',2025,59.131671326153494,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_BATT',2025,59.131671326153494,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_BATT',2025,59.131671326153494,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_BATT',2025,59.131671326153494,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_BATT',2025,59.131671326153494,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_BATT',2030,52.03553536810087,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_BATT',2030,52.03553536810087,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_BATT',2030,52.03553536810087,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_BATT',2030,52.03553536810087,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_BATT',2030,52.03553536810087,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_BATT',2035,51.869274365649545,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_BATT',2035,51.869274365649545,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_BATT',2035,51.869274365649545,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_BATT',2035,51.869274365649545,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_BATT',2040,51.70309845071227,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_BATT',2040,51.70309845071227,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_BATT',2040,51.70309845071227,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_BATT',2045,51.53683744826094,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_BATT',2045,51.53683744826094,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_BATT',2049,51.37066153332367,'$M/GWyr','');
+
+
+
+CREATE TABLE "CapacityToActivity" (
+	"regions"	text,
+	"tech"	text,
+	"c2a"	real,
+	"c2a_notes"	TEXT,
+	PRIMARY KEY("regions","tech"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech")
+);
+INSERT INTO `CapacityToActivity` VALUES ('R1','S_IMPNG',1.0,'');
+INSERT INTO `CapacityToActivity` VALUES ('R1','S_IMPURN',1.0,'');
+INSERT INTO `CapacityToActivity` VALUES ('R1','E_NGCC',31.54,'');
+INSERT INTO `CapacityToActivity` VALUES ('R1','E_SOLPV',31.54,'');
+INSERT INTO `CapacityToActivity` VALUES ('R1','E_WIND',31.54,'');
+INSERT INTO `CapacityToActivity` VALUES ('R1','E_BATT',31.54,'');
+INSERT INTO `CapacityToActivity` VALUES ('R1','E_NUCLEAR',31.54,'');
+
+
+CREATE TABLE "CapacityFactorTech" (
+	"regions"	text,
+	"season_name"	text,
+	"time_of_day_name"	text,
+	"tech"	text,
+	"cf_tech"	real CHECK("cf_tech" >= 0 AND "cf_tech" <= 1),
+	"cf_tech_notes"	text,
+	PRIMARY KEY("regions","season_name","time_of_day_name","tech"),
+	FOREIGN KEY("season_name") REFERENCES "time_season"("t_season"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech"),
+	FOREIGN KEY("time_of_day_name") REFERENCES "time_of_day"("t_day")
+);
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w7_12','day','E_SOLPV',0.27426547159395415,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w7_12','night','E_SOLPV',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w12_17','day','E_SOLPV',0.27426547159395415,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w12_17','night','E_SOLPV',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w17_24','day','E_SOLPV',0.27426547159395415,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w17_24','night','E_SOLPV',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w24_31','day','E_SOLPV',0.27426547159395415,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w24_31','night','E_SOLPV',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w31_38','day','E_SOLPV',0.27426547159395415,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w31_38','night','E_SOLPV',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-wother','day','E_SOLPV',0.27426547159395415,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-wother','night','E_SOLPV',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w7_12','day','E_SOLPV',0.13713273579697707,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w7_12','night','E_SOLPV',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w12_17','day','E_SOLPV',0.13713273579697707,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w12_17','night','E_SOLPV',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w17_24','day','E_SOLPV',0.13713273579697707,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w17_24','night','E_SOLPV',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w24_31','day','E_SOLPV',0.13713273579697707,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w24_31','night','E_SOLPV',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w31_38','day','E_SOLPV',0.13713273579697707,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w31_38','night','E_SOLPV',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-wother','day','E_SOLPV',0.13713273579697707,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-wother','night','E_SOLPV',0.13713273579697707,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w7_12','day','E_SOLPV',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w7_12','night','E_SOLPV',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w12_17','day','E_SOLPV',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w12_17','night','E_SOLPV',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w17_24','day','E_SOLPV',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w17_24','night','E_SOLPV',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w24_31','day','E_SOLPV',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w24_31','night','E_SOLPV',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w31_38','day','E_SOLPV',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w31_38','night','E_SOLPV',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-wother','day','E_SOLPV',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-wother','night','E_SOLPV',0.0,'');
+
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w7_12','day','E_WIND',0.012234971259489802,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w7_12','night','E_WIND',0.012234971259489802,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w12_17','day','E_WIND',0.25177155501542736,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w12_17','night','E_WIND',0.25177155501542736,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w17_24','day','E_WIND',0.7288909786590605,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w17_24','night','E_WIND',0.7288909786590605,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w24_31','day','E_WIND',1,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w24_31','night','E_WIND',1,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w31_38','day','E_WIND',0.8038433700873091,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w31_38','night','E_WIND',0.8038433700873091,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-wother','day','E_WIND',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-wother','night','E_WIND',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w7_12','day','E_WIND',0.012234971259489802,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w7_12','night','E_WIND',0.012234971259489802,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w12_17','day','E_WIND',0.25177155501542736,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w12_17','night','E_WIND',0.25177155501542736,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w17_24','day','E_WIND',0.7288909786590605,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w17_24','night','E_WIND',0.7288909786590605,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w24_31','day','E_WIND',1,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w24_31','night','E_WIND',1,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w31_38','day','E_WIND',0.8038433700873091,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w31_38','night','E_WIND',0.8038433700873091,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-wother','day','E_WIND',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-wother','night','E_WIND',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w7_12','day','E_WIND',0.012234971259489802,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w7_12','night','E_WIND',0.012234971259489802,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w12_17','day','E_WIND',0.25177155501542736,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w12_17','night','E_WIND',0.25177155501542736,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w17_24','day','E_WIND',0.7288909786590605,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w17_24','night','E_WIND',0.7288909786590605,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w24_31','day','E_WIND',1,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w24_31','night','E_WIND',1,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w31_38','day','E_WIND',0.8038433700873091,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w31_38','night','E_WIND',0.8038433700873091,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-wother','day','E_WIND',0.0,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-wother','night','E_WIND',0.0,'');
+
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w7_12','day','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w7_12','night','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w12_17','day','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w12_17','night','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w17_24','day','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w17_24','night','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w24_31','day','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w24_31','night','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w31_38','day','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w31_38','night','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-wother','day','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-wother','night','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w7_12','day','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w7_12','night','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w12_17','day','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w12_17','night','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w17_24','day','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w17_24','night','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w24_31','day','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w24_31','night','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w31_38','day','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w31_38','night','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-wother','day','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-wother','night','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w7_12','day','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w7_12','night','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w12_17','day','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w12_17','night','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w17_24','day','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w17_24','night','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w24_31','day','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w24_31','night','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w31_38','day','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w31_38','night','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-wother','day','E_HYDRO',0.34,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-wother','night','E_HYDRO',0.34,'');
+
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w7_12','day','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w7_12','night','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w12_17','day','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w12_17','night','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w17_24','day','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w17_24','night','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w24_31','day','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w24_31','night','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w31_38','day','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w31_38','night','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-wother','day','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-wother','night','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w7_12','day','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w7_12','night','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w12_17','day','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w12_17','night','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w17_24','day','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w17_24','night','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w24_31','day','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w24_31','night','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w31_38','day','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w31_38','night','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-wother','day','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-wother','night','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w7_12','day','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w7_12','night','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w12_17','day','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w12_17','night','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w17_24','day','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w17_24','night','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w24_31','day','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w24_31','night','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w31_38','day','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w31_38','night','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-wother','day','E_GEO',0.9,'');
+--INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-wother','night','E_GEO',0.9,'');
+
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w7_12','day','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w7_12','night','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w12_17','day','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w12_17','night','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w17_24','day','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w17_24','night','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w24_31','day','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w24_31','night','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w31_38','day','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w31_38','night','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-wother','day','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-wother','night','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w7_12','day','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w7_12','night','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w12_17','day','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w12_17','night','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w17_24','day','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w17_24','night','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w24_31','day','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w24_31','night','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w31_38','day','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w31_38','night','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-wother','day','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-wother','night','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w7_12','day','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w7_12','night','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w12_17','day','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w12_17','night','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w17_24','day','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w17_24','night','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w24_31','day','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w24_31','night','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w31_38','day','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w31_38','night','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-wother','day','E_NUCLEAR',0.94,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-wother','night','E_NUCLEAR',0.94,'');
+
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w7_12','day','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w7_12','night','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w12_17','day','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w12_17','night','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w17_24','day','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w17_24','night','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w24_31','day','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w24_31','night','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w31_38','day','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w31_38','night','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-wother','day','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-wother','night','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w7_12','day','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w7_12','night','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w12_17','day','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w12_17','night','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w17_24','day','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w17_24','night','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w24_31','day','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w24_31','night','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w31_38','day','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w31_38','night','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-wother','day','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-wother','night','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w7_12','day','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w7_12','night','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w12_17','day','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w12_17','night','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w17_24','day','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w17_24','night','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w24_31','day','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w24_31','night','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w31_38','day','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w31_38','night','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-wother','day','E_NGCC',0.87,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-wother','night','E_NGCC',0.87,'');
+
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w7_12','day','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w7_12','night','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w12_17','day','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w12_17','night','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w17_24','day','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w17_24','night','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w24_31','day','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w24_31','night','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w31_38','day','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w31_38','night','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-wother','day','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-wother','night','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w7_12','day','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w7_12','night','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w12_17','day','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w12_17','night','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w17_24','day','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w17_24','night','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w24_31','day','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w24_31','night','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w31_38','day','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w31_38','night','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-wother','day','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-wother','night','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w7_12','day','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w7_12','night','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w12_17','day','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w12_17','night','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w17_24','day','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w17_24','night','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w24_31','day','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w24_31','night','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w31_38','day','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w31_38','night','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-wother','day','E_BATT',0.33,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-wother','night','E_BATT',0.33,'');
+
+
+
+CREATE TABLE "CapacityFactorProcess" (
+	"regions"	text,
+	"season_name"	text,
+	"time_of_day_name"	text,
+	"tech"	text,
+	"vintage"	integer,
+	"cf_process"	real CHECK("cf_process" >= 0 AND "cf_process" <= 1),
+	"cf_process_notes"	text,
+	PRIMARY KEY("regions","season_name","time_of_day_name","tech","vintage"),
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech"),
+	FOREIGN KEY("season_name") REFERENCES "time_season"("t_season"),
+	FOREIGN KEY("time_of_day_name") REFERENCES "time_of_day"("t_day")
+);
+CREATE TABLE "CapacityCredit" (
+	"regions"	text,
+	"periods"	integer,
+	"tech"	text,
+	"vintage" integer,
+	"cf_tech"	real CHECK("cf_tech" >= 0 AND "cf_tech" <= 1),
+	"cf_tech_notes"	text,
+	PRIMARY KEY("regions","periods","tech","vintage")
+);
+CREATE TABLE "MaxResource" (
+	"regions"	text,
+	"tech"	text,
+	"maxres"	real,
+	"maxres_units"	text,
+	"maxres_notes"	text,
+	FOREIGN KEY("tech") REFERENCES "technologies"("tech"),
+	PRIMARY KEY("regions","tech")
+);
+CREATE TABLE "LinkedTechs" (
+	"primary_region"	text,
+	"primary_tech"	text,
+	"emis_comm" text, 
+ 	"linked_tech"	text,
+	"tech_linked_notes"	text,
+	FOREIGN KEY("primary_tech") REFERENCES "technologies"("tech"),
+	FOREIGN KEY("linked_tech") REFERENCES "technologies"("tech"),
+	FOREIGN KEY("emis_comm") REFERENCES "commodities"("comm_name"),
+	PRIMARY KEY("primary_region","primary_tech", "emis_comm")
+);
+
+INSERT INTO `technologies` VALUES ('E_BIO','p','electric',' biomass energy','');
+INSERT INTO `commodities` VALUES ('BIO','p','biomass');
+INSERT INTO `LifetimeTech` VALUES ('R1','E_BIO',50.0,'');
+INSERT INTO `LifetimeLoanTech` VALUES ('R1','E_BIO',50.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','BIO','E_BIO',2025,'ELC_CNT',0.253,'');
+INSERT INTO `Efficiency` VALUES ('R1','BIO','E_BIO',2030,'ELC_CNT',0.253,'');
+INSERT INTO `Efficiency` VALUES ('R1','BIO','E_BIO',2035,'ELC_CNT',0.253,'');
+INSERT INTO `Efficiency` VALUES ('R1','BIO','E_BIO',2040,'ELC_CNT',0.253,'');
+INSERT INTO `Efficiency` VALUES ('R1','BIO','E_BIO',2045,'ELC_CNT',0.253,'');
+INSERT INTO `Efficiency` VALUES ('R1','BIO','E_BIO',2049,'ELC_CNT',0.253,'');
+INSERT INTO `CostVariable` VALUES ('R1',2025,'E_BIO',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'E_BIO',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_BIO',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_BIO',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_BIO',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_BIO',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'E_BIO',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_BIO',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_BIO',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_BIO',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_BIO',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_BIO',2035,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_BIO',2035,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_BIO',2035,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_BIO',2035,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_BIO',2040,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_BIO',2040,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_BIO',2040,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_BIO',2045,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_BIO',2045,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_BIO',2049,0.556,'$M/PJ','');
+INSERT INTO `CostInvest` VALUES ('R1','E_BIO',2025,1037.0137867291944,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_BIO',2030,1037.0137867291944,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_BIO',2035,1037.0137867291944,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_BIO',2040,1037.0137867291944,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_BIO',2045,1037.0137867291944,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_BIO',2049,1037.0137867291944,'$M/GW','');
+INSERT INTO `CostFixed` VALUES ('R1',2025,'E_BIO',2025,19.706269473029558,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_BIO',2025,19.706269473029558,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_BIO',2025,19.706269473029558,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_BIO',2025,19.706269473029558,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_BIO',2025,19.706269473029558,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_BIO',2025,19.706269473029558,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_BIO',2030,18.671461143143834,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_BIO',2030,18.671461143143834,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_BIO',2030,18.671461143143834,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_BIO',2030,18.671461143143834,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_BIO',2030,18.671461143143834,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_BIO',2035,17.595637160350805,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_BIO',2035,17.595637160350805,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_BIO',2035,17.595637160350805,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_BIO',2035,17.595637160350805,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_BIO',2040,16.52367250343756,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_BIO',2040,16.52367250343756,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_BIO',2040,16.52367250343756,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_BIO',2045,15.456238736323305,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_BIO',2045,15.456238736323305,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_BIO',2049,14.39212334154401,'$M/GWyr','');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w7_12','day','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w7_12','night','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w12_17','day','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w12_17','night','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w17_24','day','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w17_24','night','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w24_31','day','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w24_31','night','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w31_38','day','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w31_38','night','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-wother','day','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-wother','night','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w7_12','day','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w7_12','night','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w12_17','day','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w12_17','night','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w17_24','day','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w17_24','night','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w24_31','day','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w24_31','night','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w31_38','day','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w31_38','night','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-wother','day','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-wother','night','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w7_12','day','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w7_12','night','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w12_17','day','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w12_17','night','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w17_24','day','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w17_24','night','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w24_31','day','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w24_31','night','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w31_38','day','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w31_38','night','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-wother','day','E_BIO',0.635,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-wother','night','E_BIO',0.635,'');
+
+
+INSERT INTO `commodity_labels` VALUES ('e','emissions commodity');
+INSERT INTO `commodities` VALUES ('CO2','e','co2');
+
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2', 'ethos', 'S_IMPNG',2020,'NG',50.3,'kt/PJout', '');
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2', 'ethos', 'S_IMPNG',2025,'NG',50.3,'kt/PJout', '');
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2', 'ethos', 'S_IMPNG',2030,'NG',50.3,'kt/PJout', '');
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2', 'ethos', 'S_IMPNG',2035,'NG',50.3,'kt/PJout', '');
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2', 'ethos', 'S_IMPNG',2040,'NG',50.3,'kt/PJout', '');
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2', 'ethos', 'S_IMPNG',2045,'NG',50.3,'kt/PJout', '');
+
+
+--INSERT INTO `MaxCapacity` VALUES ('R1','2025','E_WIND',0.84,'GW','');
+--INSERT INTO `MaxCapacity` VALUES ('R1','2030','E_WIND',0.84,'GW','');
+--INSERT INTO `MaxCapacity` VALUES ('R1','2035','E_WIND',0.84,'GW','');
+--INSERT INTO `MaxCapacity` VALUES ('R1','2040','E_WIND',0.84,'GW','');
+--INSERT INTO `MaxCapacity` VALUES ('R1','2045','E_WIND',0.84,'GW','');
+--INSERT INTO `MaxCapacity` VALUES ('R1','2049','E_WIND',0.84,'GW','');
+
+--INSERT INTO `MaxCapacity` VALUES ('R1','2025','E_SOLPV',1.1,'GW','');
+--INSERT INTO `MaxCapacity` VALUES ('R1','2030','E_SOLPV',1.1,'GW','');
+--INSERT INTO `MaxCapacity` VALUES ('R1','2035','E_SOLPV',1.1,'GW','');
+--INSERT INTO `MaxCapacity` VALUES ('R1','2040','E_SOLPV',1.1,'GW','');
+--INSERT INTO `MaxCapacity` VALUES ('R1','2045','E_SOLPV',1.1,'GW','');
+--INSERT INTO `MaxCapacity` VALUES ('R1','2049','E_SOLPV',1.1,'GW','');
+
+INSERT INTO `MaxCapacity` VALUES ('R1','2025','E_HYDRO',0.103,'GW','');
+INSERT INTO `MaxCapacity` VALUES ('R1','2030','E_HYDRO',0.103,'GW','');
+INSERT INTO `MaxCapacity` VALUES ('R1','2035','E_HYDRO',0.103,'GW','');
+INSERT INTO `MaxCapacity` VALUES ('R1','2040','E_HYDRO',0.103,'GW','');
+INSERT INTO `MaxCapacity` VALUES ('R1','2045','E_HYDRO',0.103,'GW','');
+INSERT INTO `MaxCapacity` VALUES ('R1','2049','E_HYDRO',0.103,'GW','');
+
+INSERT INTO `MaxCapacity` VALUES ('R1','2025','E_BIO',0.29,'GW','');
+INSERT INTO `MaxCapacity` VALUES ('R1','2030','E_BIO',0.29,'GW','');
+INSERT INTO `MaxCapacity` VALUES ('R1','2035','E_BIO',0.29,'GW','');
+INSERT INTO `MaxCapacity` VALUES ('R1','2040','E_BIO',0.29,'GW','');
+INSERT INTO `MaxCapacity` VALUES ('R1','2045','E_BIO',0.29,'GW','');
+INSERT INTO `MaxCapacity` VALUES ('R1','2049','E_BIO',0.29,'GW','');
+
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2','BIO','E_BIO',2025,'ELC_CNT',49.35,'kt/PJout', '');
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2','BIO','E_BIO',2030,'ELC_CNT',49.35,'kt/PJout', '');
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2','BIO','E_BIO',2035,'ELC_CNT',49.35,'kt/PJout', '');
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2','BIO','E_BIO',2040,'ELC_CNT',49.35,'kt/PJout', '');
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2','BIO','E_BIO',2045,'ELC_CNT',49.35,'kt/PJout', '');
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2','BIO','E_BIO',2049,'ELC_CNT',49.35,'kt/PJout', '');
+
+INSERT INTO `CapacityToActivity` VALUES ('R1','E_BIO',31.54,'');
+INSERT INTO `CapacityToActivity` VALUES ('R1','E_HYDRO',31.54,'');
+
+
+--INSERT INTO `MinCapacity` VALUES ('R1','2049','E_WIND',0.84,'GW','');
+--INSERT INTO `MinCapacity` VALUES ('R1','2049','E_SOLPV',1.1,'GW','');
+--INSERT INTO `MinCapacity` VALUES ('R1','2049','E_HYDRO',0.103,'GW','');
+
+INSERT INTO `technologies` VALUES ('E_COAL','pb','electric',' coal energy','');
+INSERT INTO `technologies` VALUES ('E_DSL','p','electric',' distilled oil energy','');
+INSERT INTO `technologies` VALUES ('E_OIL','p','electric',' heavy oil energy','');
+INSERT INTO `technologies` VALUES ('S_IMPCOAL','r','supply','imported coal','');
+INSERT INTO `technologies` VALUES ('S_IMPDSL','r','supply',' imported distilled oil','');
+INSERT INTO `technologies` VALUES ('S_IMPOIL','r','supply',' imported heavy oil','');
+
+
+INSERT INTO `commodities` VALUES ('COAL','p','coal');
+INSERT INTO `commodities` VALUES ('OIL','p','heavy fuel oil');
+INSERT INTO `commodities` VALUES ('DSL','p','distilled fuel oil');
+
+INSERT INTO `LifetimeTech` VALUES ('R1','E_COAL',50.0,'');
+INSERT INTO `LifetimeTech` VALUES ('R1','E_DSL',50.0,'');
+INSERT INTO `LifetimeTech` VALUES ('R1','E_OIL',50.0,'');
+INSERT INTO `LifetimeTech` VALUES ('R1','S_IMPCOAL',50.0,'');
+INSERT INTO `LifetimeTech` VALUES ('R1','S_IMPDSL',50.0,'');
+INSERT INTO `LifetimeTech` VALUES ('R1','S_IMPOIL',50.0,'');
+
+INSERT INTO `LifetimeLoanTech` VALUES ('R1','E_COAL',50.0,'');
+INSERT INTO `LifetimeLoanTech` VALUES ('R1','E_DSL',50.0,'');
+INSERT INTO `LifetimeLoanTech` VALUES ('R1','E_OIL',50.0,'');
+INSERT INTO `LifetimeLoanTech` VALUES ('R1','S_IMPCOAL',50.0,'');
+INSERT INTO `LifetimeLoanTech` VALUES ('R1','S_IMPDSL',50.0,'');
+INSERT INTO `LifetimeLoanTech` VALUES ('R1','S_IMPOIL',50.0,'');
+
+INSERT INTO `ExistingCapacity` VALUES ('R1','E_COAL',2020,0.454,'GW','');
+INSERT INTO `ExistingCapacity` VALUES ('R1','E_DSL',2020,1.3,'GW','');
+INSERT INTO `ExistingCapacity` VALUES ('R1','E_OIL',2020,2.89,'GW','');
+INSERT INTO `ExistingCapacity` VALUES ('R1','S_IMPCOAL',2020,0.101,'GW','');
+INSERT INTO `ExistingCapacity` VALUES ('R1','S_IMPDSL',2020,0.101,'GW','');
+INSERT INTO `ExistingCapacity` VALUES ('R1','S_IMPOIL',2020,0.101,'GW','');
+
+
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPCOAL',2020,'COAL',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPCOAL',2025,'COAL',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPCOAL',2030,'COAL',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPCOAL',2035,'COAL',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPCOAL',2040,'COAL',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPCOAL',2045,'COAL',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPCOAL',2049,'COAL',1.0,'');
+
+INSERT INTO `Efficiency` VALUES ('R1','COAL','E_COAL',2020,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','COAL','E_COAL',2025,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','COAL','E_COAL',2030,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','COAL','E_COAL',2035,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','COAL','E_COAL',2040,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','COAL','E_COAL',2045,'ELC_CNT',0.368,'');
+INSERT INTO `Efficiency` VALUES ('R1','COAL','E_COAL',2049,'ELC_CNT',0.368,'');
+
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPDSL',2020,'DSL',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPDSL',2025,'DSL',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPDSL',2030,'DSL',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPDSL',2035,'DSL',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPDSL',2040,'DSL',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPDSL',2045,'DSL',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPDSL',2049,'DSL',1.0,'');
+
+INSERT INTO `Efficiency` VALUES ('R1','DSL','E_DSL',2020,'ELC_CNT',0.4,'');
+INSERT INTO `Efficiency` VALUES ('R1','DSL','E_DSL',2025,'ELC_CNT',0.4,'');
+INSERT INTO `Efficiency` VALUES ('R1','DSL','E_DSL',2030,'ELC_CNT',0.4,'');
+INSERT INTO `Efficiency` VALUES ('R1','DSL','E_DSL',2035,'ELC_CNT',0.4,'');
+INSERT INTO `Efficiency` VALUES ('R1','DSL','E_DSL',2040,'ELC_CNT',0.4,'');
+INSERT INTO `Efficiency` VALUES ('R1','DSL','E_DSL',2045,'ELC_CNT',0.4,'');
+INSERT INTO `Efficiency` VALUES ('R1','DSL','E_DSL',2049,'ELC_CNT',0.4,'');
+
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPOIL',2020,'OIL',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPOIL',2025,'OIL',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPOIL',2030,'OIL',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPOIL',2035,'OIL',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPOIL',2040,'OIL',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPOIL',2045,'OIL',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPOIL',2049,'OIL',1.0,'');
+
+INSERT INTO `Efficiency` VALUES ('R1','OIL','E_OIL',2020,'ELC_CNT',0.35,'');
+INSERT INTO `Efficiency` VALUES ('R1','OIL','E_OIL',2025,'ELC_CNT',0.35,'');
+INSERT INTO `Efficiency` VALUES ('R1','OIL','E_OIL',2030,'ELC_CNT',0.35,'');
+INSERT INTO `Efficiency` VALUES ('R1','OIL','E_OIL',2035,'ELC_CNT',0.35,'');
+INSERT INTO `Efficiency` VALUES ('R1','OIL','E_OIL',2040,'ELC_CNT',0.35,'');
+INSERT INTO `Efficiency` VALUES ('R1','OIL','E_OIL',2045,'ELC_CNT',0.35,'');
+INSERT INTO `Efficiency` VALUES ('R1','OIL','E_OIL',2049,'ELC_CNT',0.35,'');
+
+INSERT INTO `CostVariable` VALUES ('R1',2025,'S_IMPCOAL',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'S_IMPCOAL',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'S_IMPCOAL',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPCOAL',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPCOAL',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPCOAL',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2025,'S_IMPCOAL',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'S_IMPCOAL',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'S_IMPCOAL',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPCOAL',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPCOAL',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPCOAL',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'S_IMPCOAL',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'S_IMPCOAL',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPCOAL',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPCOAL',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPCOAL',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'S_IMPCOAL',2035,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPCOAL',2035,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPCOAL',2035,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPCOAL',2035,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPCOAL',2040,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPCOAL',2040,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPCOAL',2040,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPCOAL',2045,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPCOAL',2045,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPCOAL',2049,0.556,'$M/PJ','');
+
+INSERT INTO `CostVariable` VALUES ('R1',2025,'S_IMPDSL',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'S_IMPDSL',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'S_IMPDSL',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPDSL',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPDSL',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPDSL',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2025,'S_IMPDSL',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'S_IMPDSL',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'S_IMPDSL',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPDSL',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPDSL',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPDSL',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'S_IMPDSL',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'S_IMPDSL',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPDSL',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPDSL',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPDSL',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'S_IMPDSL',2035,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPDSL',2035,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPDSL',2035,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPDSL',2035,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPDSL',2040,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPDSL',2040,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPDSL',2040,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPDSL',2045,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPDSL',2045,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPDSL',2049,0.556,'$M/PJ','');
+
+INSERT INTO `CostVariable` VALUES ('R1',2025,'S_IMPOIL',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'S_IMPOIL',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'S_IMPOIL',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPOIL',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPOIL',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPOIL',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2025,'S_IMPOIL',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'S_IMPOIL',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'S_IMPOIL',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPOIL',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPOIL',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPOIL',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'S_IMPOIL',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'S_IMPOIL',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPOIL',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPOIL',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPOIL',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'S_IMPOIL',2035,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPOIL',2035,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPOIL',2035,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPOIL',2035,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPOIL',2040,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPOIL',2040,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPOIL',2040,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPOIL',2045,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPOIL',2045,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPOIL',2049,0.556,'$M/PJ','');
+
+INSERT INTO `CostVariable` VALUES ('R1',2025,'E_COAL',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'E_COAL',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_COAL',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_COAL',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_COAL',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_COAL',2020,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2025,'E_COAL',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'E_COAL',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_COAL',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_COAL',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_COAL',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_COAL',2025,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'E_COAL',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_COAL',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_COAL',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_COAL',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_COAL',2030,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_COAL',2035,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_COAL',2035,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_COAL',2035,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_COAL',2035,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_COAL',2040,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_COAL',2040,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_COAL',2040,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_COAL',2045,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_COAL',2045,0.556,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_COAL',2049,0.556,'$M/PJ','');
+
+INSERT INTO `CostVariable` VALUES ('R1',2025,'E_DSL',2020,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'E_DSL',2020,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_DSL',2020,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_DSL',2020,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_DSL',2020,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_DSL',2020,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2025,'E_DSL',2025,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'E_DSL',2025,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_DSL',2025,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_DSL',2025,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_DSL',2025,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_DSL',2025,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'E_DSL',2030,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_DSL',2030,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_DSL',2030,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_DSL',2030,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_DSL',2030,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_DSL',2035,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_DSL',2035,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_DSL',2035,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_DSL',2035,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_DSL',2040,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_DSL',2040,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_DSL',2040,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_DSL',2045,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_DSL',2045,0.993,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_DSL',2049,0.993,'$M/PJ','');
+
+INSERT INTO `CostVariable` VALUES ('R1',2025,'E_OIL',2020,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'E_OIL',2020,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_OIL',2020,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_OIL',2020,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_OIL',2020,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_OIL',2020,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2025,'E_OIL',2025,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'E_OIL',2025,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_OIL',2025,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_OIL',2025,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_OIL',2025,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_OIL',2025,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'E_OIL',2030,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_OIL',2030,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_OIL',2030,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_OIL',2030,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_OIL',2030,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'E_OIL',2035,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_OIL',2035,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_OIL',2035,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_OIL',2035,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'E_OIL',2040,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_OIL',2040,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_OIL',2040,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'E_OIL',2045,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_OIL',2045,0.876,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'E_OIL',2049,0.876,'$M/PJ','');
+
+INSERT INTO `CostInvest` VALUES ('R1','E_COAL',2025,1037.0137867291944,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_COAL',2030,1037.0137867291944,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_COAL',2035,1037.0137867291944,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_COAL',2040,1037.0137867291944,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_COAL',2045,1037.0137867291944,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_COAL',2049,1037.0137867291944,'$M/GW','');
+
+INSERT INTO `CostInvest` VALUES ('R1','E_DSL',2025,999,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_DSL',2030,999,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_DSL',2035,999,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_DSL',2040,999,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_DSL',2045,999,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_DSL',2049,999,'$M/GW','');
+
+INSERT INTO `CostInvest` VALUES ('R1','E_OIL',2025,999,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_OIL',2030,999,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_OIL',2035,999,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_OIL',2040,999,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_OIL',2045,999,'$M/GW','');
+INSERT INTO `CostInvest` VALUES ('R1','E_OIL',2049,999,'$M/GW','');
+
+INSERT INTO `CostFixed` VALUES ('R1',2025,'E_COAL',2020,19.706269473029558,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_COAL',2020,19.706269473029558,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_COAL',2020,19.706269473029558,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_COAL',2020,19.706269473029558,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_COAL',2020,19.706269473029558,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_COAL',2020,19.706269473029558,'$M/GW
+INSERT INTO `CostFixed` VALUES ('R1',2025,'E_COAL',2025,19.706269473029558,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_COAL',2025,19.706269473029558,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_COAL',2025,19.706269473029558,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_COAL',2025,19.706269473029558,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_COAL',2025,19.706269473029558,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_COAL',2025,19.706269473029558,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_COAL',2030,18.671461143143834,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_COAL',2030,18.671461143143834,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_COAL',2030,18.671461143143834,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_COAL',2030,18.671461143143834,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_COAL',2030,18.671461143143834,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_COAL',2035,17.595637160350805,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_COAL',2035,17.595637160350805,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_COAL',2035,17.595637160350805,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_COAL',2035,17.595637160350805,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_COAL',2040,16.52367250343756,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_COAL',2040,16.52367250343756,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_COAL',2040,16.52367250343756,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_COAL',2045,15.456238736323305,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_COAL',2045,15.456238736323305,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_COAL',2049,14.39212334154401,'$M/GWyr','');
+
+INSERT INTO `CostFixed` VALUES ('R1',2025,'E_DSL',2020,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_DSL',2020,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_DSL',2020,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_DSL',2020,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_DSL',2020,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_DSL',2020,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2025,'E_DSL',2025,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_DSL',2025,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_DSL',2025,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_DSL',2025,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_DSL',2025,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_DSL',2025,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_DSL',2030,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_DSL',2030,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_DSL',2030,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_DSL',2030,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_DSL',2030,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_DSL',2035,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_DSL',2035,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_DSL',2035,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_DSL',2035,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_DSL',2040,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_DSL',2040,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_DSL',2040,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_DSL',2045,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_DSL',2045,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_DSL',2049,11.33,'$M/GWyr','');
+
+INSERT INTO `CostFixed` VALUES ('R1',2025,'E_OIL',2020,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_OIL',2020,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_OIL',2020,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_OIL',2020,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_OIL',2020,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_OIL',2020,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2025,'E_OIL',2025,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_OIL',2025,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_OIL',2025,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_OIL',2025,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_OIL',2025,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_OIL',2025,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2030,'E_OIL',2030,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_OIL',2030,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_OIL',2030,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_OIL',2030,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_OIL',2030,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2035,'E_OIL',2035,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_OIL',2035,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_OIL',2035,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_OIL',2035,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2040,'E_OIL',2040,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_OIL',2040,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_OIL',2040,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2045,'E_OIL',2045,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_OIL',2045,11.33,'$M/GWyr','');
+INSERT INTO `CostFixed` VALUES ('R1',2049,'E_OIL',2049,11.33,'$M/GWyr','');
+
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w7_12','day','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w7_12','night','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w12_17','day','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w12_17','night','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w17_24','day','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w17_24','night','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w24_31','day','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w24_31','night','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w31_38','day','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w31_38','night','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-wother','day','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-wother','night','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w7_12','day','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w7_12','night','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w12_17','day','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w12_17','night','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w17_24','day','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w17_24','night','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w24_31','day','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w24_31','night','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w31_38','day','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w31_38','night','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-wother','day','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-wother','night','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w7_12','day','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w7_12','night','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w12_17','day','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w12_17','night','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w17_24','day','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w17_24','night','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w24_31','day','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w24_31','night','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w31_38','day','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w31_38','night','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-wother','day','E_COAL',0.91,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-wother','night','E_COAL',0.91,'');
+
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w7_12','day','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w7_12','night','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w12_17','day','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w12_17','night','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w17_24','day','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w17_24','night','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w24_31','day','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w24_31','night','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w31_38','day','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w31_38','night','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-wother','day','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-wother','night','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w7_12','day','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w7_12','night','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w12_17','day','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w12_17','night','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w17_24','day','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w17_24','night','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w24_31','day','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w24_31','night','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w31_38','day','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w31_38','night','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-wother','day','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-wother','night','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w7_12','day','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w7_12','night','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w12_17','day','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w12_17','night','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w17_24','day','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w17_24','night','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w24_31','day','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w24_31','night','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w31_38','day','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w31_38','night','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-wother','day','E_DSL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-wother','night','E_DSL',0.517,'');
+
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w7_12','day','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w7_12','night','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w12_17','day','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w12_17','night','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w17_24','day','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w17_24','night','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w24_31','day','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w24_31','night','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w31_38','day','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-w31_38','night','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-wother','day','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'sunny-wother','night','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w7_12','day','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w7_12','night','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w12_17','day','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w12_17','night','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w17_24','day','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w17_24','night','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w24_31','day','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w24_31','night','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w31_38','day','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-w31_38','night','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-wother','day','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'partsunny-wother','night','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w7_12','day','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w7_12','night','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w12_17','day','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w12_17','night','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w17_24','day','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w17_24','night','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w24_31','day','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w24_31','night','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w31_38','day','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-w31_38','night','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-wother','day','E_OIL',0.517,'');
+INSERT INTO `CapacityFactorTech` VALUES ('R1', 'cloudy-wother','night','E_OIL',0.517,'');
+
+INSERT INTO `CapacityToActivity` VALUES ('R1','S_IMPCOAL',1.0,'');
+INSERT INTO `CapacityToActivity` VALUES ('R1','E_COAL',31.54,'');
+INSERT INTO `CapacityToActivity` VALUES ('R1','S_IMPDSL',1.0,'');
+INSERT INTO `CapacityToActivity` VALUES ('R1','E_DSL',31.54,'');
+INSERT INTO `CapacityToActivity` VALUES ('R1','S_IMPOIL',1.0,'');
+INSERT INTO `CapacityToActivity` VALUES ('R1','E_OIL',31.54,'');
+
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2', 'ethos', 'S_IMPCOAL',2020,'COAL',90.37,'kt/PJout', '');
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2', 'ethos', 'S_IMPCOAL',2025,'COAL',90.37,'kt/PJout', '');
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2', 'ethos', 'S_IMPCOAL',2030,'COAL',90.37,'kt/PJout', '');
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2', 'ethos', 'S_IMPCOAL',2035,'COAL',90.37,'kt/PJout', '');
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2', 'ethos', 'S_IMPCOAL',2040,'COAL',90.37,'kt/PJout', '');
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2', 'ethos', 'S_IMPCOAL',2045,'COAL',90.37,'kt/PJout', '');
+
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2', 'ethos', 'S_IMPDSL',2020,'DSL',69.34,'kt/PJout', '');
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2', 'ethos', 'S_IMPDSL',2025,'DSL',69.34,'kt/PJout', '');
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2', 'ethos', 'S_IMPDSL',2030,'DSL',69.34,'kt/PJout', '');
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2', 'ethos', 'S_IMPDSL',2035,'DSL',69.34,'kt/PJout', '');
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2', 'ethos', 'S_IMPDSL',2040,'DSL',69.34,'kt/PJout', '');
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2', 'ethos', 'S_IMPDSL',2045,'DSL',69.34,'kt/PJout', '');
+
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2', 'ethos', 'S_IMPOIL',2020,'OIL',67.58,'kt/PJout', '');
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2', 'ethos', 'S_IMPOIL',2025,'OIL',67.58,'kt/PJout', '');
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2', 'ethos', 'S_IMPOIL',2030,'OIL',67.58,'kt/PJout', '');
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2', 'ethos', 'S_IMPOIL',2035,'OIL',67.58,'kt/PJout', '');
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2', 'ethos', 'S_IMPOIL',2040,'OIL',67.58,'kt/PJout', '');
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2', 'ethos', 'S_IMPOIL',2045,'OIL',67.58,'kt/PJout', '');
+
+--INSERT INTO `MaxActivity` VALUES ('R1','2030','E_COAL',0,'GW','');
+--INSERT INTO `MaxActivity` VALUES ('R1','2035','E_COAL',0,'GW','');
+--INSERT INTO `MaxActivity` VALUES ('R1','2040','E_COAL',0,'GW','');
+--INSERT INTO `MaxActivity` VALUES ('R1','2045','E_COAL',0,'GW','');
+--INSERT INTO `MaxActivity` VALUES ('R1','2049','E_COAL',0,'GW','');
+
+INSERT INTO `technologies` VALUES ('S_IMPBIO','r','supply',' imported bio','');
+INSERT INTO `LifetimeTech` VALUES ('R1','S_IMPBIO',100.0,'');
+INSERT INTO `LifetimeLoanTech` VALUES ('R1','S_IMPBIO',100.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPBIO',2025,'BIO',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPBIO',2030,'BIO',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPBIO',2035,'BIO',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPBIO',2040,'BIO',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPBIO',2045,'BIO',1.0,'');
+INSERT INTO `Efficiency` VALUES ('R1','ethos','S_IMPBIO',2049,'BIO',1.0,'');
+INSERT INTO `CostVariable` VALUES ('R1',2025,'S_IMPBIO',2025,4.142783754655357,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'S_IMPBIO',2025,4.684345584230079,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'S_IMPBIO',2025,5.0854209817676574,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPBIO',2025,5.43587641851481,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPBIO',2025,5.452455426476691,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPBIO',2025,5.691560036003803,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2030,'S_IMPBIO',2030,4.684345584230079,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'S_IMPBIO',2030,5.0854209817676574,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPBIO',2030,5.43587641851481,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPBIO',2030,5.452455426476691,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPBIO',2030,5.691560036003803,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2035,'S_IMPBIO',2035,5.0854209817676574,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPBIO',2035,5.43587641851481,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPBIO',2035,5.452455426476691,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPBIO',2035,5.691560036003803,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2040,'S_IMPBIO',2040,5.43587641851481,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPBIO',2040,5.452455426476691,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPBIO',2040,5.691560036003803,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2045,'S_IMPBIO',2045,5.452455426476691,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPBIO',2045,5.691560036003803,'$M/PJ','');
+INSERT INTO `CostVariable` VALUES ('R1',2049,'S_IMPBIO',2049,5.691560036003803,'$M/PJ','');
+INSERT INTO `CapacityToActivity` VALUES ('R1','S_IMPBIO',1.0,'');
+
+
+INSERT INTO `MaxActivity` VALUES ('R1','2025','E_SOLPV',738,'PJ','');
+INSERT INTO `MaxActivity` VALUES ('R1','2030','E_SOLPV',738,'PJ','');
+INSERT INTO `MaxActivity` VALUES ('R1','2035','E_SOLPV',738,'PJ','');
+INSERT INTO `MaxActivity` VALUES ('R1','2040','E_SOLPV',738,'PJ','');
+INSERT INTO `MaxActivity` VALUES ('R1','2045','E_SOLPV',738,'PJ','');
+INSERT INTO `MaxActivity` VALUES ('R1','2049','E_SOLPV',738,'PJ','');
+
+INSERT INTO `MaxActivity` VALUES ('R1','2025','E_WIND',75.24,'PJ','');
+INSERT INTO `MaxActivity` VALUES ('R1','2030','E_WIND',75.24,'PJ','');
+INSERT INTO `MaxActivity` VALUES ('R1','2035','E_WIND',75.24,'PJ','');
+INSERT INTO `MaxActivity` VALUES ('R1','2040','E_WIND',75.24,'PJ','');
+INSERT INTO `MaxActivity` VALUES ('R1','2045','E_WIND',75.24,'PJ','');
+INSERT INTO `MaxActivity` VALUES ('R1','2049','E_WIND',75.24,'PJ','');
+
+INSERT INTO `EmissionActivity` VALUES ('R1','CO2', 'ethos', 'S_IMPNG',2049,'NG',50.3,'kt/PJout', '');
+
+INSERT INTO `CapacityToActivity` VALUES ('R1','E_TRANS',31.54,'');
+INSERT INTO `CapacityToActivity` VALUES ('R1','E_TWR',31.54,'');
+INSERT INTO `CapacityToActivity` VALUES ('R1','E_SUB',31.54,'');
+INSERT INTO `CapacityToActivity` VALUES ('R1','E_COND',31.54,'');
+
+COMMIT;
