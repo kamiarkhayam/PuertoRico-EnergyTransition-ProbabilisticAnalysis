@@ -6,10 +6,10 @@ This repository contains the source code and data used in the research paper tit
 ## Repository Structure
 
 - `simulation/`: Contains main code snippets for running the probabilistic cost analysis for three transition scenarios in Puerto Rico. It includes:
-  - `scenario_*.py`: Scripts for each transition scenario.
+  - `prob_cost_analysis_scenario.py`: Scripts for each transition scenario.
   - `utils.py`: Utility functions required by the main scripts.
-  - `temoa_input_writer.py`: Script for generating TEMOA input files for all scenarios.
-  - `temoa_output_reader.py`: Script for reading and processing TEMOA output files.
+  - `input_file_write.py`: Script for generating TEMOA input files for all scenarios.
+  - `output_file_read.py`: Script for reading and processing TEMOA output files.
 
 - `surrogates/`: Includes surrogate models (Deep Neural Networks) for total and operational costs, aimed at reducing computational time for sensitivity analysis.
   - `total_cost_surrogate.py`: Surrogate model for total cost analysis.
@@ -33,7 +33,7 @@ To replicate the analyses or use the framework for your study, follow these step
 
 - Python 3.x
 - MATLAB (for UQLab)
-- Relevant Python packages as listed in `requirements.txt`
+- Relevant Python packages
 - UQLab installation in MATLAB (follow instructions on the [UQLab website](https://www.uqlab.com/download))
 
 ## License
