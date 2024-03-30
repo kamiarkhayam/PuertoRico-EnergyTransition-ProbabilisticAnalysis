@@ -184,7 +184,7 @@ wind_inv_costs, wind_md_inv_costs, wind_fix_costs, wind_md_fix_costs, wind_cf_ch
 ng_inv_costs, ng_fix_costs, ng_var_costs = compute_ngcc_proj(2020, 2050, 5, ng_inv_data, ng_fix_data, ng_var_data)
 
 # Nuclear energy projections
-nuc_inv_costs, nuc_fix_costs, nuc_var_costs = compute_nuclear_proj(2020, 2050, 5, nuc_inv_data, nuc_fix_data, nuc_var_data, nuc_cf_data)
+nuc_inv_costs, nuc_fix_costs, nuc_var_costs = compute_nuclear_proj(2020, 2050, 5, nuc_inv_data, nuc_fix_data, nuc_var_data)
 
 # Population and Per Capita Consumption projections
 population, md_population, pop_percentile = predict_population(2020, 2050, 5, population_data, population_params)
@@ -199,7 +199,7 @@ md_windy_ratios = np.array([md_weather[2][0], md_weather[3][0], md_weather[4][0]
                             1 - sum(md_weather[2:7][0])])
 
 # Specific Capacity Factors
-sol_cf = sol_cfs['CFs']['2050']
+sol_cf = sol_cfs['2050']
 hyd_cf = 0.49  # Hardcoded value for Hydro CF
 
 # Wind Capacity Factor function coefficients
@@ -207,7 +207,7 @@ md_wind_cf_change = wind_cf_changes['2050']
 cut_in, rated = 3 * 3.6, 13 * 3.6  # Wind turbine cut-in and rated speeds in m/s
 wind_cf1, wind_cf2, wind_cf3, wind_cf4 = compute_wind_cf_func(cut_in, rated, md_wind_cf_change)
 
-demand_mean = write_temoa_input_file(
+demand_mean = write_temoa_input_file_fd(
     template_path, new_file_path, new_file_name,
     md_sunny_ratios, md_windy_ratios, md_population, md_per_capita,
     gas_md_price, urn_md_price,
@@ -215,16 +215,16 @@ demand_mean = write_temoa_input_file(
     nuc_var_costs, nuc_fix_costs, nuc_inv_costs,
     sol_md_inv_costs, wind_md_inv_costs, hyd_md_inv_costs, batt_md_inv_costs,
     sol_md_fix_costs, wind_md_fix_costs, hyd_md_fix_costs, batt_md_fix_costs,
-    hyd_cf, sol_cfs, wind_cf1, wind_cf2, wind_cf3, wind_cf4
+    hyd_cf, sol_cf, wind_cf1, wind_cf2, wind_cf3, wind_cf4
 )
 
 # Uncomment the next line to run the Temoa model with the specified configurations
 # run_temoa(temoa_path, sql_path, sql_name, config_path, config_name)
 
 # Reading Temoa model output and adjusting capacities
-caps, acts, emissions = read_output_fd(output_path, output_name)
+caps, acts = read_output_fd(output_path, output_name)
 caps = {key: value * 1.2 for key, value in caps.items()}  # Adjusting capacities by 20%
-nuc_max_act = caps['Nuc'] * 365 * 24 / 277.78 * 0.94  # Calculating maximum nuclear activity
+nuc_max_act = caps['E_NUCLEAR'] * 365 * 24 / 277.78 * 0.94  # Calculating maximum nuclear activity
 
 
 # External loop
@@ -242,7 +242,7 @@ for k in range(external_loops):
     sol_inv_costs, sol_md_inv_costs, sol_fix_costs, sol_md_fix_costs, sol_cfs, sol_md_cfs, sol_percentile_inv, sol_percentile_fix, sol_percentile_cf = compute_solar_proj(2020, 2050, 5, sol_inv_data, sol_fix_data, sol_cf_data, sol_inv_params, sol_fix_params, sol_cf_params)
     wind_inv_costs, wind_md_inv_costs, wind_fix_costs, wind_md_fix_costs, wind_cf_changes, wind_md_cf_changes, wind_percentile_inv, wind_percentile_fix, wind_percentile_cf_change = compute_wind_proj(2020, 2050, 5, wind_inv_data, wind_fix_data, wind_cf_change_data, wind_inv_params, wind_fix_params, wind_cf_change_params)
     ng_inv_costs, ng_fix_costs, ng_var_costs = compute_ngcc_proj(2020, 2050, 5, ng_inv_data, ng_fix_data, ng_var_data)
-    nuc_inv_costs, nuc_fix_costs, nuc_var_costs = compute_nuclear_proj(2020, 2050, 5, nuc_inv_data, nuc_fix_data, nuc_var_data, nuc_cf_data)
+    nuc_inv_costs, nuc_fix_costs, nuc_var_costs = compute_nuclear_proj(2020, 2050, 5, nuc_inv_data, nuc_fix_data, nuc_var_data)
     
     # Population and Per Capita Consumption projections
     population, md_population, pop_percentile = predict_population(2020, 2050, 5, population_data, population_params)
@@ -306,10 +306,10 @@ for k in range(external_loops):
     trans_var_50 = 0.86  # Assumed value for transmission variable costs
     cond_var_50 = 1.15  # Assumed value for distribution variable costs
     
-    wind_farm_no = max(np.floor(caps['Wind'] / (np.random.uniform(40, 150) / 1000)), 1) #Assuming each wind farm can have 40-150 MW
-    solar_farm_no = max(np.floor(caps['Sol'] / (np.random.uniform(20, 100) / 1000)), 1) #Assuming each solar farm can have 20-100 MW
+    wind_farm_no = max(np.floor(caps['E_WIND'] / (np.random.uniform(40, 150) / 1000)), 1) #Assuming each wind farm can have 40-150 MW
+    solar_farm_no = max(np.floor(caps['E_SOLPV'] / (np.random.uniform(20, 100) / 1000)), 1) #Assuming each solar farm can have 20-100 MW
     # Since the initial number of substation in data file is 340
-    substation_no = np.floor(340 * caps['Sub'] / 3.08 / 23.67)
+    substation_no = np.floor(340 * caps['E_SUB'] / 3.08 / 23.67)
     twr_no = np.floor(4284511 / np.random.uniform(150, 600)) #Considering the transmission line length and the distance between two towers in considered U(150, 600m)
     
 
@@ -326,7 +326,7 @@ for k in range(external_loops):
         sunny_ratios_in = np.array([weather_in[0][0], weather_in[1][0], 1 - (weather_in[0][0] + weather_in[1][0])])
         windy_ratios_in = np.array([weather_in[2][0], weather_in[3][0], weather_in[4][0], weather_in[5][0], weather_in[6][0], 1 - (weather_in[2][0] + weather_in[3][0] + weather_in[4][0] + weather_in[5][0] + weather_in[6][0])])
         
-        const_acts = acts['Wind'] + acts['Sol'] + acts['Nuc']
+        const_acts = acts['E_WIND'] + acts['E_SOLPV'] + acts['E_NUCLEAR']
         
         change_in_sol_act = (sunny_ratios_in[0] + 0.5 * sunny_ratios_in[1]) / (sunny_ratios[0] + 0.5 * sunny_ratios[1])
         
@@ -343,21 +343,21 @@ for k in range(external_loops):
         caps_in = caps.copy()
         #emissions_in = emissions
         
-        acts_in['Sol'] *= change_in_sol_act
-        acts_in['Wind'] *= change_in_wind_act
+        acts_in['E_SOLPV'] *= change_in_sol_act
+        acts_in['E_WIND'] *= change_in_wind_act
         
-        acts_in['Nuc'] = max(demand_2050 - acts_in['Sol'] - acts_in['Wind'], 0)
+        acts_in['E_NUCLEAR'] = max(demand_2050 - acts_in['E_SOLPV'] - acts_in['E_WIND'], 0)
         
-        if acts_in['Nuc'] > nuc_max_act:
-            added_cost_ratio = ((acts_in['Nuc'] - nuc_max_act) / acts_in['Nuc']) * 1.2 + (nuc_max_act / acts_in['Nuc'])
+        if acts_in['E_NUCLEAR'] > nuc_max_act:
+            added_cost_ratio = ((acts_in['E_NUCLEAR'] - nuc_max_act) / acts_in['E_NUCLEAR']) * 1.2 + (nuc_max_act / acts_in['E_NUCLEAR'])
     
-        acts_in['URN'] = 2.91 * acts_in['Nuc']
+        acts_in['URN'] = 2.91 * acts_in['E_NUCLEAR']
         
         
-        acts_in['Trans'] *= demand_2050 / demand_mean
-        acts_in['Sub'] *= demand_2050 / demand_mean
-        acts_in['Cond'] *= demand_2050 / demand_mean
-        acts_in['Twr'] *= demand_2050 / demand_mean
+        acts_in['E_TRANS'] *= demand_2050 / demand_mean
+        acts_in['E_SUB'] *= demand_2050 / demand_mean
+        acts_in['E_COND'] *= demand_2050 / demand_mean
+        acts_in['E_TWR'] *= demand_2050 / demand_mean
         
         op_cost_undamaged, sol_cost, wind_cost, batt_cost, hyd_cost, nuc_cost, ngcc_cost, trans_cost, cond_cost = compute_normal_op_costs_fd(caps_in, acts_in, sol_fix_50, wind_fix_50, batt_fix_50, ngcc_fix_50, nuc_fix_50, hyd_fix_50, ngcc_var_50, nuc_var_50, trans_var_50, cond_var_50, ng_var_50, urn_var_50, added_cost_ratio)
         
@@ -494,8 +494,8 @@ for k in range(external_loops):
 
     outputs.append(np.mean(np.array(internal_results), axis=0))
 
-    np.savetxt(os.join.path(input_output_dir, 'outputFD.txt'), np.array(outputs))
-    np.savetxt(os.join.path(input_output_dir,'inputFD.txt'), np.array(inputs))
+    np.savetxt(os.path.join(input_output_dir, 'outputFD.txt'), np.array(outputs))
+    np.savetxt(os.path.join(input_output_dir,'inputFD.txt'), np.array(inputs))
     
     et_out = time.time()
     t_out = et_out - st_out

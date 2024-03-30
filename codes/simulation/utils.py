@@ -81,7 +81,7 @@ def calculate_annual_occurrences(hurricanes_df, start_year, end_year):
     return pd.Series(occur, index=years)
 
 
-def poissonProcessInterval(min_year, max_year, rate, mu, sigma, mu_change_ratio, rate_change_ratio):
+def poisson_process_interval(min_year, max_year, rate, mu, sigma, mu_change_ratio, rate_change_ratio):
     """
     Simulate occurrences of events based on a Poisson process with log-normally distributed intervals.
 
@@ -102,7 +102,7 @@ def poissonProcessInterval(min_year, max_year, rate, mu, sigma, mu_change_ratio,
         sigma = np.sqrt(np.log(std**2 / mean**2 + 1))
         return mu, sigma
     
-    occurrences = pd.DataFrame(columns=['year', 'windSpeed'])
+    events = []  # List to store event data
     rate *= rate_change_ratio  # Adjust initial rate based on rate change ratio
     mean, std = np.exp(mu + sigma**2 / 2), np.sqrt((np.exp(sigma**2) - 1) * np.exp(2*mu + sigma**2))
     mu, sigma = adjust_mu_sigma(mean, std, mu_change_ratio)  # Adjust mu and sigma based on change ratio
@@ -116,8 +116,9 @@ def poissonProcessInterval(min_year, max_year, rate, mu, sigma, mu_change_ratio,
             break
 
         windSpeed = np.random.lognormal(mu, sigma)  # Generate event magnitude
-        occurrences = occurrences.append({'year': current_year, 'windSpeed': windSpeed}, ignore_index=True)
+        events.append({'year': current_year, 'windSpeed': windSpeed})
 
+    occurrences = pd.DataFrame(events)  # Create DataFrame from list of events
     return occurrences
 
 
@@ -934,7 +935,7 @@ def compute_coal_proj(min_year, max_year, interval, data, params):
     return projected_prices, median_prices, percentile
 
 
-def compute_diesel_proj(min_year, max_year, interval, data, params):
+def compute_dsl_proj(min_year, max_year, interval, data, params):
     """
     Computes projected diesel prices based on skewed normal distribution parameters for specified years.
 
@@ -1555,16 +1556,16 @@ def compute_normal_op_costs_fd(caps, acts, sol_fix_50, wind_fix_50, batt_fix_50,
     Returns:
     - Total operational cost in million units, and individual operational costs for solar, wind, battery, hydro, nuclear (including uranium), NGCC (including natural gas), transmission, and conduction.
     """
-    sol_cost = sol_fix_50 * caps['Sol']
-    wind_cost = wind_fix_50 * caps['Wind']
-    batt_cost = batt_fix_50 * caps['Batt']
-    nuc_cost = (nuc_fix_50 * caps['Nuc'] + nuc_var_50 * acts['Nuc']) * added_cost_ratio
-    hyd_cost = hyd_fix_50 * caps['Hyd']
-    ngcc_cost = ngcc_fix_50 * caps['NGCC'] + ngcc_var_50 * acts['NGCC']
-    trans_cost = trans_var_50 * acts['Trans']
-    cond_cost = cond_var_50 * acts['Cond']
-    ng_cost = ng_var_50 * acts['NG']
-    urn_cost = urn_var_50 * acts['URN']
+    sol_cost = sol_fix_50 * caps['E_SOLPV']
+    wind_cost = wind_fix_50 * caps['E_WIND']
+    batt_cost = batt_fix_50 * caps['E_BATT']
+    nuc_cost = (nuc_fix_50 * caps['E_NUCLEAR'] + nuc_var_50 * acts['E_NUCLEAR']) * added_cost_ratio
+    hyd_cost = hyd_fix_50 * caps['E_HYDRO']
+    ngcc_cost = ngcc_fix_50 * caps['E_NGCC'] + ngcc_var_50 * acts['E_NGCC']
+    trans_cost = trans_var_50 * acts['E_TRANS']
+    cond_cost = cond_var_50 * acts['E_COND']
+    ng_cost = ng_var_50 * acts['S_IMPNG']
+    urn_cost = urn_var_50 * acts['S_IMPURN']
 
     # Total operational cost
     op_cost = sum([sol_cost, wind_cost, batt_cost, hyd_cost, nuc_cost, ngcc_cost, trans_cost, cond_cost, ng_cost, urn_cost])
@@ -1588,31 +1589,31 @@ def compute_normal_op_costs_bau(caps, acts, sol_fix_50, wind_fix_50, batt_fix_50
     - Total operational cost (in million units) and individual operational costs for each energy technology.
     """
     # Operational costs for renewable and non-renewable sources
-    sol_cost = sol_fix_50 * caps['Sol']
-    wind_cost = wind_fix_50 * caps['Wind']
-    batt_cost = batt_fix_50 * caps['Batt']
-    hyd_cost = hyd_fix_50 * caps['Hyd']
-    bio_cost = (bio_fix_50 * caps['Bio'] + bio_var_50 * acts['Bio']) + biofuel_50 * acts['Biofuel']
+    sol_cost = sol_fix_50 * caps['E_SOLPV']
+    wind_cost = wind_fix_50 * caps['E_WIND']
+    batt_cost = batt_fix_50 * caps['E_BATT']
+    hyd_cost = hyd_fix_50 * caps['E_HYDRO']
+    bio_cost = (bio_fix_50 * caps['E_BIO'] + bio_var_50 * acts['E_BIO']) + biofuel_50 * acts['S_IMPBIO']
 
     # Operational costs for nuclear energy, considering additional cost ratio
-    nuc_cost = (nuc_fix_50 * caps['Nuc'] + nuc_var_50 * acts['Nuc']) 
+    nuc_cost = (nuc_fix_50 * caps['E_NUCLEAR'] + nuc_var_50 * acts['E_NUCLEAR']) 
     
     # Operational costs for fossil fuel technologies
-    ngcc_cost = (ngcc_fix_50 * caps['NGCC'] + ngcc_var_50 * acts['NGCC']) * added_cost_ratio
-    ecoal_cost = coal_fix_50 * caps['ECoal'] + ecoal_var_50 * acts['ECoal']
-    edsl_cost = dsl_fix_50 * caps['EDsl'] + edsl_var_50 * acts['EDsl']
-    eoil_cost = oil_fix_50 * caps['EOil'] + eoil_var_50 * acts['EOil']
+    ngcc_cost = (ngcc_fix_50 * caps['E_NGCC'] + ngcc_var_50 * acts['E_NGCC']) * added_cost_ratio
+    ecoal_cost = coal_fix_50 * caps['E_COAL'] + ecoal_var_50 * acts['E_COAL']
+    edsl_cost = dsl_fix_50 * caps['E_DSL'] + edsl_var_50 * acts['E_DSL']
+    eoil_cost = oil_fix_50 * caps['E_OIL'] + eoil_var_50 * acts['E_OIL']
     
     # Operational costs for transmission and conduction
-    trans_cost = trans_var_50 * acts['Trans']
-    cond_cost = cond_var_50 * acts['Cond']
+    trans_cost = trans_var_50 * acts['E_TRANS']
+    cond_cost = cond_var_50 * acts['E_COND']
     
     # Costs associated with raw materials and fuels
-    ng_cost = ng_var_50 * acts['NG']
-    coal_cost = coal_var_50 * acts['Coal']
-    dsl_cost = dsl_var_50 * acts['Dsl']
-    oil_cost = oil_var_50 * acts['Oil']
-    urn_cost = urn_var_50 * acts['URN']
+    ng_cost = ng_var_50 * acts['S_IMPNG']
+    coal_cost = coal_var_50 * acts['S_IMPCOAL']
+    dsl_cost = dsl_var_50 * acts['S_IMPDSL']
+    oil_cost = oil_var_50 * acts['S_IMPOIL']
+    urn_cost = urn_var_50 * acts['S_IMPURN']
     
     # Total operational cost in million units
     op_cost = sum([sol_cost, wind_cost, batt_cost, hyd_cost, bio_cost, nuc_cost, ngcc_cost, ecoal_cost, edsl_cost, eoil_cost, trans_cost, cond_cost, ng_cost, coal_cost, dsl_cost, oil_cost, urn_cost]) * 10**6
@@ -1635,19 +1636,19 @@ def compute_normal_op_costs_fr(caps, acts, sol_fix_50, wind_fix_50, batt_fix_50,
     Returns:
     - Total operational cost in million units, and individual operational costs for solar, wind, battery, hydro, bio, NGCC, nuclear, transmission, and conduction.
     """
-    sol_cost = sol_fix_50 * caps['Sol']
-    wind_cost = wind_fix_50 * caps['Wind']
-    batt_cost = batt_fix_50 * caps['Batt']
-    nuc_cost = nuc_fix_50 * caps['Nuc'] + nuc_var_50 * acts['Nuc']
-    hyd_cost = hyd_fix_50 * caps['Hyd']
-    bio_cost = (bio_fix_50 * caps['Bio'] + bio_var_50 * acts['Bio']) * added_cost_ratio
-    ngcc_cost = ngcc_fix_50 * caps['NGCC'] + ngcc_var_50 * acts['NGCC']
+    sol_cost = sol_fix_50 * caps['E_SOLPV']
+    wind_cost = wind_fix_50 * caps['E_WIND']
+    batt_cost = batt_fix_50 * caps['E_BATT']
+    nuc_cost = nuc_fix_50 * caps['E_NUCLEAR'] + nuc_var_50 * acts['E_NUCLEAR']
+    hyd_cost = hyd_fix_50 * caps['E_HYDRO']
+    bio_cost = (bio_fix_50 * caps['E_BIO'] + bio_var_50 * acts['E_BIO']) * added_cost_ratio
+    ngcc_cost = ngcc_fix_50 * caps['E_NGCC'] + ngcc_var_50 * acts['E_NGCC']
 
-    trans_cost = trans_var_50 * acts['Trans']
-    cond_cost = cond_var_50 * acts['Cond']
-    ng_cost = ng_var_50 * acts['NG']
-    urn_cost = urn_var_50 * acts['URN']
-    biofuel_cost = biofuel_50 * acts['Biofuel']
+    trans_cost = trans_var_50 * acts['E_TRANS']
+    cond_cost = cond_var_50 * acts['E_COND']
+    ng_cost = ng_var_50 * acts['S_IMPNG']
+    urn_cost = urn_var_50 * acts['S_IMPURN']
+    biofuel_cost = biofuel_50 * acts['S_IMPBIO']
 
     op_cost = sum([sol_cost, wind_cost, batt_cost, hyd_cost, bio_cost, ngcc_cost, trans_cost, cond_cost, ng_cost, urn_cost, biofuel_cost]) * 10**6
 
@@ -1672,12 +1673,12 @@ def write_grid_data(caps, sol_inv_costs, wind_inv_costs, trans_inv_cost, cond_in
     """
 
     components = [
-        {'Type': 'Transmission Line', 'Replacement Cost': caps['Trans'] * trans_inv_cost, 'Line Length': 4284511},
-        {'Type': 'Distribution Line', 'Replacement Cost': caps['Cond'] * cond_inv_cost, 'Line Length': 26742880},
-        {'Type': 'Tower', 'Replacement Cost': caps['Twr'] * twr_inv_cost, 'Line Length': None},
-        {'Type': 'Substation', 'Replacement Cost': caps['Sub'] * sub_inv_cost, 'Line Length': None},
-        {'Type': 'Solar Generator', 'Replacement Cost': caps['Sol'] * sol_inv_costs['2050'] * 10**6, 'Line Length': None},
-        {'Type': 'Wind Generator', 'Replacement Cost': caps['Wind'] * wind_inv_costs['2050'] * 10**6, 'Line Length': None}
+        {'Type': 'Transmission Line', 'Replacement Cost': caps['E_TRANS'] * trans_inv_cost, 'Line Length': 4284511},
+        {'Type': 'Distribution Line', 'Replacement Cost': caps['E_COND'] * cond_inv_cost, 'Line Length': 26742880},
+        {'Type': 'Tower', 'Replacement Cost': caps['E_TWR'] * twr_inv_cost, 'Line Length': None},
+        {'Type': 'Substation', 'Replacement Cost': caps['E_SUB'] * sub_inv_cost, 'Line Length': None},
+        {'Type': 'Solar Generator', 'Replacement Cost': caps['E_SOLPV'] * sol_inv_costs['2050'] * 10**6, 'Line Length': None},
+        {'Type': 'Wind Generator', 'Replacement Cost': caps['E_WIND'] * wind_inv_costs['2050'] * 10**6, 'Line Length': None}
     ]
 
     # Convert the list of dictionaries to a DataFrame
