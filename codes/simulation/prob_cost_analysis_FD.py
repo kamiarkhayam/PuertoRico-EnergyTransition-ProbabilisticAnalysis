@@ -157,7 +157,7 @@ min_year = 2049
 max_year = 2050
  
 
-external_loops = 5000
+external_loops = 200
 internal_loops = 1000
 inputs = []
 outputs = []

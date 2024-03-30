@@ -163,12 +163,12 @@ input_output_dir = "C:\\Users\\bmb2tn\\OneDrive - University of Virginia\\Ph.D. 
 min_year = 2049
 max_year = 2050
 
-external_loops = 5000
+external_loops = 200
 internal_loops = 1000
 inputs = []
 outputs = []
 
-timeIn = time.time()
+time_in = time.time()
 
 
 # Projected costs and capacities for gas and uranium
