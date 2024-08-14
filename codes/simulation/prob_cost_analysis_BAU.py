@@ -486,7 +486,7 @@ for k in range(external_loops):
             price_ind = elc_price_change['2050'] * 12.5
             price_com = elc_price_change['2050'] * 8.5
             
-            # Power outage cost based on PREDICTION OF DOMESTIC, INDUSTRIAL AND COMMERCIAL, INTERRUPTION COSTS BY RELATIONAL APPROACH (1997), changing the units from HK$ to $ since the conversion rate has not changed. Also, the values obtained match the 3500$/MWh estimated value of https://cdn.misoenergy.org/20200910%20MSC%20Item%2005b%20RAN%20Value%20of%20Lost%20Load%20(IR071)472095.pdf
+            # Power outage cost based on PREDICTION OF DOMESTIC, INDUSTRIAL AND COMMERCIAL, INTERRUPTION COSTS BY RELATIONAL APPROACH (1997), changing the units from HK$ to $ since the conversion rate has not changed. Also, the values obtained match the 5000$/MWh estimated value of Ercot
             # Compute Value of Lost Load (VoLL) for each sector
             voll_res = (-1.0058 + 0.58 * price_res) * lost_load_res #USD
             voll_com = (-4.585 + 0.991 * price_com) * lost_load_com
